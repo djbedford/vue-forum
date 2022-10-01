@@ -83,15 +83,23 @@
         >
       </li>
     </ul>
+    <div>{{ threads }}</div>
   </div>
 </template>
 
 <script>
+import sourceData from "@/data.json";
+
 export default {
   name: "HelloWorld",
   props: {
-    msg: String,
+    msg: String
   },
+  data() {
+    return {
+      threads: sourceData.threads
+    };
+  }
 };
 </script>
 
