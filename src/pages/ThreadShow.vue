@@ -1,69 +1,74 @@
-<template>
-<div class="col-large push-top">
+postpopost.threadposposososps<template>
+  <div class="col-large push-top">
     <h1>{{ thread.title }}</h1>
 
-    <div class="post-list">
-      <div v-for="postId in thread.posts" :key="postId" class="post">
-        <div class="user-info">
-          <a href="#" class="user-name">{{
-            userById(postById(postId).userId).name
-          }}</a>
+    <post-list :posts="threadPosts" />
 
-          <a href="#">
-            <img
-              class="avatar-large"
-              :src="userById(postById(postId).userId).avatar"
-              alt=""
-            />
-          </a>
-
-          <p class="desktop-only text-small">107 posts</p>
+    <div class="col-full">
+      <form @submit.prevent="addPost">
+        <div class="form-group">
+          <textarea
+            v-model="newPostText"
+            name=""
+            id=""
+            cols="30"
+            rows="10"
+            class="form-input"
+          ></textarea>
         </div>
-
-        <div class="post-content">
-          <div>
-            <p>
-              {{ postById(postId).text }}
-            </p>
-          </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-blue">Submit post</button>
         </div>
-
-        <div class="post-date text-faded">
-          {{ postById(postId).publishedAt }}
-        </div>
-      </div>
+      </form>
     </div>
   </div>
-  </template>
+</template>
 
 <script>
 import sourceData from "@/data.json";
+import PostList from "@/components/PostList.vue";
 
 export default {
+  name: "ThreadShow",
   props: {
     id: {
       required: true,
       type: String
     }
   },
+  components: {
+    PostList
+  },
   data() {
     return {
       threads: sourceData.threads,
       posts: sourceData.posts,
-      users: sourceData.users
+      newPostText: ""
     };
   },
   computed: {
-      thread () {
-          return this.threads.find(thread => thread.id === this.id)
-      }
+    thread() {
+      return this.threads.find(thread => thread.id === this.id);
+    },
+    threadPosts() {
+      return this.posts.filter(post => post.threadId === this.id);
+    }
   },
   methods: {
-    postById(postId) {
-      return this.posts.find(p => p.id === postId);
-    },
-    userById(userId) {
-      return this.users.find(u => u.id === userId);
+    addPost() {
+      const postId = "gggg" + Math.random();
+      const post = {
+        id: postId,
+        text: this.newPostText,
+        publishedAt: Math.floor(Date.now() / 1000),
+        threadId: this.id,
+        userId: "jUjmgCurRRdzayqbRMO7aTG9X1G2"
+      };
+
+      this.posts.push(post);
+      this.thread.posts.push(postId);
+
+      this.newPostText = "";
     }
   }
 };
