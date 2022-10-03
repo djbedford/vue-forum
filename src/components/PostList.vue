@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import sourceData from "@/data.json";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -46,10 +45,10 @@ export default {
       type: Array
     }
   },
-  data() {
-    return {
-      users: sourceData.users
-    };
+  computed: {
+    users() {
+      return this.$store.state.users;
+    }
   },
   methods: {
     userById(userId) {
