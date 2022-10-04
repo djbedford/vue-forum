@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "@/pages/Home.vue";
+import ThreadCreate from "@/pages/ThreadCreate.vue";
 import ThreadShow from "@/pages/ThreadShow.vue";
+import ThreadEdit from "@/pages/ThreadEdit.vue";
 import NotFound from "@/pages/NotFound.vue";
 import Forum from "@/pages/Forum.vue";
 import Category from "@/pages/Category.vue";
@@ -45,6 +47,12 @@ const routes = [
     props: true
   },
   {
+    path: "/forum/:id/thread/create",
+    name: "ThreadCreate",
+    component: ThreadCreate,
+    props: true
+  },
+  {
     path: "/thread/:id",
     name: "ThreadShow",
     component: ThreadShow,
@@ -65,6 +73,12 @@ const routes = [
 
       return next();
     }
+  },
+  {
+    path: "/thread/:id/edit",
+    name: "ThreadEdit",
+    component: ThreadEdit,
+    props: true
   },
   {
     path: "/:pathMatch(.*)*",
