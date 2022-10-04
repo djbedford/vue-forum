@@ -13,7 +13,6 @@
         <input
           v-model="activeUser.username"
           type="text"
-          value="joker"
           placeholder="Username"
           class="form-input text-lead text-bold"
         />
@@ -23,7 +22,6 @@
         <input
           v-model="activeUser.name"
           type="text"
-          value="Joseph Kerr"
           placeholder="Full Name"
           class="form-input text-lead"
         />
