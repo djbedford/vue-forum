@@ -10,6 +10,7 @@ import Category from "@/pages/Category.vue";
 import Profile from "@/pages/Profile.vue";
 
 import sourceData from "@/data.json";
+import { findById } from "@/helpers";
 
 const routes = [
   {
@@ -58,9 +59,7 @@ const routes = [
     component: ThreadShow,
     props: true,
     beforeEnter(to, from, next) {
-      const threadExists = sourceData.threads.find(
-        thread => thread.id === to.params.id
-      );
+      const threadExists = findById(sourceData.threads, to.params.id);
 
       if (!threadExists) {
         return next({

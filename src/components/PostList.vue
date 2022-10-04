@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { findById } from "@/helpers";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -52,7 +53,7 @@ export default {
   },
   methods: {
     userById(userId) {
-      return this.users.find(u => u.id === userId);
+      return findById(this.users, userId);
     },
     diffForHumans(timestamp) {
       return dayjs.unix(timestamp).fromNow();

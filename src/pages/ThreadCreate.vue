@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { findById } from "@/helpers";
 import ThreadEditor from "@/components/ThreadEditor.vue";
 
 export default {
@@ -23,7 +24,7 @@ export default {
   },
   computed: {
     forum() {
-      return this.$store.state.forums.find(forum => forum.id === this.id);
+      return findById(this.$store.state.forums, this.id);
     }
   },
   methods: {

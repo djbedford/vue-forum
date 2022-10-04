@@ -16,6 +16,7 @@ postpopost.threadposposososps<template>
 </template>
 
 <script>
+import { findById } from "@/helpers";
 import PostList from "@/components/PostList.vue";
 import PostEditor from "@/components/PostEditor.vue";
 
@@ -33,7 +34,7 @@ export default {
   },
   computed: {
     thread() {
-      return this.threads.find(thread => thread.id === this.id);
+      return findById(this.threads, this.id);
     },
     threadPosts() {
       return this.posts.filter(post => post.threadId === this.id);
