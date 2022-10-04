@@ -5,6 +5,7 @@ import ThreadShow from "@/pages/ThreadShow.vue";
 import NotFound from "@/pages/NotFound.vue";
 import Forum from "@/pages/Forum.vue";
 import Category from "@/pages/Category.vue";
+import Profile from "@/pages/Profile.vue";
 
 import sourceData from "@/data.json";
 
@@ -13,6 +14,19 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home
+  },
+  {
+    path: "/me",
+    name: "Profile",
+    component: Profile
+  },
+  {
+    path: "/me/edit",
+    name: "ProfileEdit",
+    component: Profile,
+    props: {
+      edit: true
+    }
   },
   {
     path: "/category/:id",
