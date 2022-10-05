@@ -12,7 +12,12 @@
           />
         </a>
 
-        <p class="desktop-only text-small">107 posts</p>
+        <p class="desktop-only text-small">
+          {{ userById(post.userId).postsCount }} posts
+        </p>
+        <p class="desktop-only text-small">
+          {{ userById(post.userId).threadsCount }} threads
+        </p>
       </div>
 
       <div class="post-content">
@@ -31,7 +36,6 @@
 </template>
 
 <script>
-import { findById } from "@/helpers";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -53,7 +57,7 @@ export default {
   },
   methods: {
     userById(userId) {
-      return findById(this.users, userId);
+      return this.$store.getters.user(userId);
     },
     diffForHumans(timestamp) {
       return dayjs.unix(timestamp).fromNow();
@@ -64,3 +68,5 @@ export default {
   }
 };
 </script>
+
+<style scoped></style>
