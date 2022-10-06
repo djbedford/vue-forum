@@ -1,6 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import { findById } from "@/helpers";
+import { findById, docToResource } from "@/helpers";
 
 export default {
   async createPost({ commit, state }, post) {
@@ -107,19 +107,36 @@ export default {
   async updateThread({ commit, state }, { id, title, text }) {
     const thread = findById(state.threads, id);
     const post = findById(state.posts, thread.posts[0]);
-    const newThread = {
+    let newThread = {
       ...thread,
       title
     };
-    const newPost = {
+    let newPost = {
       ...post,
       text
     };
+    const threadReference = firebase
+      .firestore()
+      .collection("threads")
+      .doc(id);
+    const postReference = firebase
+      .firestore()
+      .collection("posts")
+      .doc(post.id);
+    const batch = firebase.firestore().batch();
+
+    batch.update(threadReference, newThread);
+    batch.update(postReference, newPost);
+
+    await batch.commit();
+
+    newThread = await threadReference.get();
+    newPost = await postReference.get();
 
     commit("setItem", { resource: "threads", item: newThread });
     commit("setItem", { resource: "posts", item: newPost });
 
-    return newThread;
+    return docToResource(newThread);
   },
   fetchAllCategories({ commit }) {
     return new Promise(resolve => {
