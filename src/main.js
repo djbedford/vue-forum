@@ -4,6 +4,7 @@ import router from "@/router";
 import store from "@/store";
 import firebase from "firebase/compat/app";
 import firebaseConfig from "@/config/firebase";
+import fontAwesome from "@/plugins/fontawesome";
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -11,6 +12,7 @@ firebase.initializeApp(firebaseConfig);
 const forumApp = createApp(App);
 forumApp.use(router);
 forumApp.use(store);
+forumApp.use(fontAwesome);
 
 const requireComponent = require.context(
   "./components",

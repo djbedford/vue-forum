@@ -26,6 +26,13 @@
             {{ post.text }}
           </p>
         </div>
+        <a
+          href="#"
+          style="margin-left: auto;"
+          class="link-unstyled"
+          title="Make a change"
+          ><fa icon="pencil-alt"
+        /></a>
       </div>
 
       <div class="post-date text-faded">
