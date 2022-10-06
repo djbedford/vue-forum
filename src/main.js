@@ -2,11 +2,11 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "@/router";
 import store from "@/store";
-import { initializeApp } from "firebase/app";
-import firebaseConfig from "@/config//firebase";
+import firebase from "firebase/compat/app";
+import firebaseConfig from "@/config/firebase";
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 const forumApp = createApp(App);
 forumApp.use(router);

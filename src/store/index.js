@@ -1,10 +1,15 @@
 import { createStore } from "vuex";
-import sourceData from "@/data.json";
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
 import { findById, upsert } from "@/helpers";
 
 export default createStore({
   state: {
-    ...sourceData,
+    categories: [],
+    forums: [],
+    threads: [],
+    posts: [],
+    users: [],
     authId: "VXjpr2WHa8Ux4Bnggym8QFLdv5C3"
   },
   getters: {
@@ -40,6 +45,10 @@ export default createStore({
       return id => {
         const thread = findById(state.threads, id);
 
+        if (!thread) {
+          return {};
+        }
+
         return {
           ...thread,
           get author() {
@@ -61,7 +70,7 @@ export default createStore({
       post.userId = state.authId;
       post.publishedAt = Math.floor(Date.now() / 1000);
 
-      commit("setPost", { post });
+      commit("setItem", { resource: "posts", item: post });
       commit("appendPostToThread", {
         childId: post.id,
         parentId: post.threadId
@@ -84,7 +93,7 @@ export default createStore({
         id
       };
 
-      commit("setThread", { thread });
+      commit("setItem", { resource: "threads", item: thread });
       commit("appendThreadToForum", { childId: id, parentId: forumId });
       commit("appendThreadToUser", { childId: id, parentId: userId });
       dispatch("createPost", { text, threadId: id });
@@ -92,7 +101,7 @@ export default createStore({
       return findById(state.threads, id);
     },
     updateUser({ commit }, user) {
-      commit("setUser", { user, userId: user.id });
+      commit("setItem", { resource: "users", item: user });
     },
     async updateThread({ commit, state }, { id, title, text }) {
       const thread = findById(state.threads, id);
@@ -106,22 +115,86 @@ export default createStore({
         text
       };
 
-      commit("setThread", { thread: newThread });
-      commit("setPost", { post: newPost });
+      commit("setItem", { resource: "threads", item: newThread });
+      commit("setItem", { resource: "posts", item: newPost });
 
       return newThread;
+    },
+    fetchAllCategories({ commit }) {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("categories")
+          .onSnapshot(querySnapshot => {
+            const categories = querySnapshot.docs.map(doc => {
+              const item = { id: doc.id, ...doc.data() };
+
+              commit("setItem", { resource: "categories", item });
+
+              return item;
+            });
+
+            resolve(categories);
+          });
+      });
+    },
+    fetchCategory({ dispatch }, { id }) {
+      return dispatch("fetchItem", { id, resource: "categories" });
+    },
+    fetchCategories({ dispatch }, { ids }) {
+      return dispatch("fetchItems", { ids, resource: "categories" });
+    },
+    fetchForum({ dispatch }, { id }) {
+      return dispatch("fetchItem", { id, resource: "forums" });
+    },
+    fetchForums({ dispatch }, { ids }) {
+      return dispatch("fetchItems", { ids, resource: "forums" });
+    },
+    fetchThread({ dispatch }, { id }) {
+      return dispatch("fetchItem", { id, resource: "threads" });
+    },
+    fetchThreads({ dispatch }, { ids }) {
+      return dispatch("fetchItems", { ids, resource: "threads" });
+    },
+    fetchPost({ dispatch }, { id }) {
+      return dispatch("fetchItem", { id, resource: "posts" });
+    },
+    fetchPosts({ dispatch }, { ids }) {
+      return dispatch("fetchItems", { ids, resource: "posts" });
+    },
+    fetchUser({ dispatch }, { id }) {
+      return dispatch("fetchItem", { id, resource: "users" });
+    },
+    fetchUsers({ dispatch }, { ids }) {
+      return dispatch("fetchItems", { ids, resource: "users" });
+    },
+    fetchItem({ commit }, { id, resource }) {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection(resource)
+          .doc(id)
+          .onSnapshot(doc => {
+            const item = {
+              id: doc.id,
+              ...doc.data()
+            };
+
+            commit("setItem", { resource, item });
+
+            resolve(item);
+          });
+      });
+    },
+    fetchItems({ dispatch }, { ids, resource }) {
+      return Promise.all(
+        ids.map(id => dispatch("fetchItem", { id, resource }))
+      );
     }
   },
   mutations: {
-    setPost(state, { post }) {
-      upsert(state.posts, post);
-    },
-    setThread(state, { thread }) {
-      upsert(state.threads, thread);
-    },
-    setUser(state, { user, userId }) {
-      const userIndex = state.users.findIndex(user => user.id === userId);
-      state.users[userIndex] = user;
+    setItem(state, { resource, item }) {
+      upsert(state[resource], item);
     },
     appendPostToThread: makeAppendChildToParentMutation({
       parent: "threads",
@@ -145,6 +218,14 @@ export default createStore({
 function makeAppendChildToParentMutation({ parent, child }) {
   return (state, { childId, parentId }) => {
     const resource = findById(state[parent], parentId);
+
+    if (!resource) {
+      console.warn(
+        `Appending ${child} ${childId} to ${parent} ${parentId} failed because the parent didn't exist`
+      );
+      return;
+    }
+
     resource[child] = resource[child] || [];
 
     if (!resource[child].includes(childId)) {
