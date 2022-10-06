@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import PostList from "@/components/PostList.vue";
 import PostEditor from "@/components/PostEditor.vue";
 
@@ -57,26 +58,31 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      "createPost",
+      "fetchThread",
+      "fetchUser",
+      "fetchPosts",
+      "fetchUsers"
+    ]),
     addPost(eventData) {
       const post = {
         ...eventData.post,
         threadId: this.id
       };
 
-      this.$store.dispatch("createPost", post);
+      this.createPost(post);
     }
   },
   async created() {
-    const thread = await this.$store.dispatch("fetchThread", { id: this.id });
+    const thread = await this.fetchThread({ id: this.id });
 
-    this.$store.dispatch("fetchUser", { id: thread.userId });
-
-    const posts = await this.$store.dispatch("fetchPosts", {
+    const posts = await this.fetchPosts({
       ids: thread.posts
     });
-    
-    const users = posts.map(post => post.userId);
-    this.$store.dispatch("fetchUsers", { ids: users });
+
+    const users = posts.map(post => post.userId).concat(thread.userId);
+    this.fetchUsers({ ids: users });
   }
 };
 </script>

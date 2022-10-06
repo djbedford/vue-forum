@@ -4,6 +4,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import { findById } from "@/helpers";
 import ForumList from "@/components/ForumList.vue";
 
@@ -23,6 +24,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["fetchCategory", "fetchForums"]),
     getCategoryForums(category) {
       return this.$store.state.forums.filter(
         forum => forum.categoryId === category.id
@@ -30,11 +32,11 @@ export default {
     }
   },
   async created() {
-    const category = await this.$store.dispatch("fetchCategory", {
+    const category = await this.fetchCategory({
       id: this.id
     });
 
-    this.$store.dispatch("fetchForums", { ids: category.forums });
+    this.fetchForums({ ids: category.forums });
   }
 };
 </script>

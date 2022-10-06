@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import { findById } from "@/helpers";
 import ThreadEditor from "@/components/ThreadEditor.vue";
 
@@ -38,8 +39,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["updateThread", "fetchThread", "fetchPost"]),
     async save({ title, text }) {
-      const thread = await this.$store.dispatch("updateThread", {
+      const thread = await this.updateThread({
         id: this.id,
         title,
         text
@@ -52,9 +54,9 @@ export default {
     }
   },
   async created() {
-    const thread = await this.$store.dispatch("fetchThread", { id: this.id });
+    const thread = await this.fetchThread({ id: this.id });
 
-    this.$store.dispatch("fetchPost", { id: thread.posts[0] });
+    this.fetchPost({ id: thread.posts[0] });
   }
 };
 </script>
