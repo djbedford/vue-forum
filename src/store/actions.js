@@ -3,14 +3,35 @@ import "firebase/compat/firestore";
 import { findById } from "@/helpers";
 
 export default {
-  createPost({ commit, state }, post) {
-    post.id = "gggg" + Math.random();
+  async createPost({ commit, state }, post) {
     post.userId = state.authId;
-    post.publishedAt = Math.floor(Date.now() / 1000);
+    post.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
 
-    commit("setItem", { resource: "posts", item: post });
+    const batch = firebase.firestore().batch();
+    const postReference = firebase
+      .firestore()
+      .collection("posts")
+      .doc();
+    const threadReference = firebase
+      .firestore()
+      .collection("threads")
+      .doc(post.threadId);
+
+    batch.set(postReference, post);
+    batch.update(threadReference, {
+      posts: firebase.firestore.FieldValue.arrayUnion(postReference.id),
+      contributors: firebase.firestore.FieldValue.arrayUnion(state.authId)
+    });
+    await batch.commit();
+
+    const newPost = await postReference.get();
+
+    commit("setItem", {
+      resource: "posts",
+      item: { id: newPost.id, ...newPost.data() }
+    });
     commit("appendPostToThread", {
-      childId: post.id,
+      childId: newPost.id,
       parentId: post.threadId
     });
     commit("appendContributorToThread", {
@@ -19,24 +40,59 @@ export default {
     });
   },
   async createThread({ commit, state, dispatch }, { title, text, forumId }) {
-    const id = "ggqq" + Math.random();
     const userId = state.authId;
-    const publishedAt = Math.floor(Date.now() / 1000);
+    const publishedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+    const threadReference = firebase
+      .firestore()
+      .collection("threads")
+      .doc();
 
     const thread = {
       forumId,
       title,
       publishedAt,
       userId,
-      id
+      id: threadReference.id
     };
 
-    commit("setItem", { resource: "threads", item: thread });
-    commit("appendThreadToForum", { childId: id, parentId: forumId });
-    commit("appendThreadToUser", { childId: id, parentId: userId });
-    dispatch("createPost", { text, threadId: id });
+    const userReference = firebase
+      .firestore()
+      .collection("users")
+      .doc(userId);
+    const forumReference = firebase
+      .firestore()
+      .collection("forums")
+      .doc(forumId);
+    const batch = firebase.firestore().batch();
 
-    return findById(state.threads, id);
+    batch.set(threadReference, thread);
+    batch.update(userReference, {
+      threads: firebase.firestore.FieldValue.arrayUnion(threadReference.id)
+    });
+    batch.update(forumReference, {
+      threads: firebase.firestore.FieldValue.arrayUnion(threadReference.id)
+    });
+
+    batch.commit();
+
+    const newThread = await threadReference.get();
+
+    commit("setItem", {
+      resource: "threads",
+      item: { id: newThread.id, ...newThread.data() }
+    });
+    commit("appendThreadToForum", {
+      childId: threadReference.id,
+      parentId: forumId
+    });
+    commit("appendThreadToUser", {
+      childId: threadReference.id,
+      parentId: userId
+    });
+    await dispatch("createPost", { text, threadId: threadReference.id });
+
+    return findById(state.threads, threadReference.id);
   },
   updateUser({ commit }, user) {
     commit("setItem", { resource: "users", item: user });
@@ -78,37 +134,37 @@ export default {
   },
   fetchCategory: ({ dispatch }, { id }) =>
     dispatch("fetchItem", { id, resource: "categories" }),
-  
+
   fetchCategories: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "categories" }),
-  
+
   fetchForum: ({ dispatch }, { id }) =>
     dispatch("fetchItem", { id, resource: "forums" }),
-  
+
   fetchForums: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "forums" }),
-  
+
   fetchThread: ({ dispatch }, { id }) =>
     dispatch("fetchItem", { id, resource: "threads" }),
-  
+
   fetchThreads: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "threads" }),
-  
+
   fetchPost: ({ dispatch }, { id }) =>
     dispatch("fetchItem", { id, resource: "posts" }),
-  
+
   fetchPosts: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "posts" }),
-  
+
   fetchUser: ({ dispatch }, { id }) =>
     dispatch("fetchItem", { id, resource: "users" }),
-  
+
   fetchUsers: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "users" }),
-  
+
   fetchAuthUser: ({ dispatch, state }) =>
     dispatch("fetchUser", { id: state.authId }),
-  
+
   fetchItem({ commit }, { id, resource }) {
     return new Promise(resolve => {
       firebase
