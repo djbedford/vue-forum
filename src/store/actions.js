@@ -16,11 +16,18 @@ export default {
       .firestore()
       .collection("threads")
       .doc(post.threadId);
+    const userReference = firebase
+      .firestore()
+      .collection("users")
+      .doc(state.authId);
 
     batch.set(postReference, post);
     batch.update(threadReference, {
       posts: firebase.firestore.FieldValue.arrayUnion(postReference.id),
       contributors: firebase.firestore.FieldValue.arrayUnion(state.authId)
+    });
+    batch.update(userReference, {
+      postsCount: firebase.firestore.FieldValue.increment(1)
     });
     await batch.commit();
 
