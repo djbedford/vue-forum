@@ -160,7 +160,7 @@ export default {
   },
   fetchAllCategories({ commit }) {
     return new Promise(resolve => {
-      firebase
+      const unsubscribe = firebase
         .firestore()
         .collection("categories")
         .onSnapshot(querySnapshot => {
@@ -174,6 +174,8 @@ export default {
 
           resolve(categories);
         });
+
+      commit("appendUnsubscribe", { unsubscribe });
     });
   },
   fetchCategory: ({ dispatch }, { id }) =>
@@ -211,7 +213,7 @@ export default {
 
   fetchItem({ commit }, { id, resource }) {
     return new Promise(resolve => {
-      firebase
+      const unsubscribe = firebase
         .firestore()
         .collection(resource)
         .doc(id)
@@ -225,8 +227,14 @@ export default {
 
           resolve(item);
         });
+
+      commit("appendUnsubscribe", { unsubscribe });
     });
   },
   fetchItems: ({ dispatch }, { ids, resource }) =>
-    Promise.all(ids.map(id => dispatch("fetchItem", { id, resource })))
+    Promise.all(ids.map(id => dispatch("fetchItem", { id, resource }))),
+  unsubscribeAllSnapshots({ state, commit }) {
+    state.unsubscribes.forEach(unsubscribe => unsubscribe());
+    commit("clearAllUnsubscribes");
+  }
 };
