@@ -1,5 +1,5 @@
 <template>
-  <div v-if="forum" class="col-full push-top">
+  <div v-if="asyncDataStatus_ready" class="col-full push-top">
     <h1>
       Create new thread in <i>{{ forum.name }}</i>
     </h1>
@@ -11,6 +11,7 @@
 <script>
 import { mapActions } from "vuex";
 import { findById } from "@/helpers";
+import asyncDataStatus from "@/mixins/asyncDataStatus";
 import ThreadEditor from "@/components/ThreadEditor.vue";
 
 export default {
@@ -23,6 +24,7 @@ export default {
   components: {
     ThreadEditor
   },
+  mixins: [asyncDataStatus],
   computed: {
     forum() {
       return findById(this.$store.state.forums, this.id);
@@ -43,8 +45,10 @@ export default {
       this.$router.push({ name: "Forum", params: { id: this.forum.id } });
     }
   },
-  created() {
-    this.fetchForum({ id: this.id });
+  async created() {
+    await this.fetchForum({ id: this.id });
+
+    this.asyncDataStatus_fetched();
   }
 };
 </script>

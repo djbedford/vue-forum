@@ -212,6 +212,7 @@ export default {
     dispatch("fetchUser", { id: state.authId }),
 
   fetchItem({ commit }, { id, resource }) {
+    console.log('🔥', resource, id)
     return new Promise(resolve => {
       const unsubscribe = firebase
         .firestore()
