@@ -3,7 +3,7 @@
     <form @submit.prevent="save">
       <div class="form-group">
         <textarea
-          v-model="text"
+          v-model="postCopy.text"
           name=""
           id=""
           cols="30"
@@ -12,7 +12,9 @@
         ></textarea>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn-blue">Submit post</button>
+        <button type="submit" class="btn-blue">
+          {{ post.id ? "Update post" : "Submit post" }}
+        </button>
       </div>
     </form>
   </div>
@@ -20,20 +22,22 @@
 
 <script>
 export default {
+  props: {
+    post: {
+      type: Object,
+      default: () => ({ text: null })
+    }
+  },
   data() {
     return {
-      text: ""
+      postCopy: { ...this.post }
     };
   },
   methods: {
     save() {
-      const post = {
-        text: this.text
-      };
+      this.$emit("save", { post: this.postCopy });
 
-      this.$emit("save", { post });
-
-      this.text = "";
+      this.postCopy.text = "";
     }
   }
 };

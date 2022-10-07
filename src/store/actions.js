@@ -46,6 +46,26 @@ export default {
       parentId: post.threadId
     });
   },
+  async updatePost({ commit, state }, { text, id }) {
+    const post = {
+      text,
+      edited: {
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        by: state.authId,
+        moderated: false
+      }
+    };
+    const postReference = firebase
+      .firestore()
+      .collection("posts")
+      .doc(id);
+
+    await postReference.update(post);
+
+    const updatedPost = postReference.get();
+
+    commit("setItem", { resource: "posts", item: updatedPost });
+  },
   async createThread({ commit, state, dispatch }, { title, text, forumId }) {
     const userId = state.authId;
     const publishedAt = firebase.firestore.FieldValue.serverTimestamp();

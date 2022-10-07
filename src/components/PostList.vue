@@ -21,12 +21,21 @@
       </div>
 
       <div class="post-content">
-        <div>
-          <p>
-            {{ post.text }}
-          </p>
+        <div class="col-full">
+          <post-editor
+            v-if="editing === post.id"
+            :post="post"
+            @save="handleUpdate"
+          />
+          <div v-else>
+            <p>
+              {{ post.text }}
+            </p>
+          </div>
         </div>
         <a
+          v-if="post.userId === $store.state.authId"
+          @click.prevent="toggleEditMode(post.id)"
           href="#"
           style="margin-left: auto;"
           class="link-unstyled"
@@ -36,6 +45,7 @@
       </div>
 
       <div class="post-date text-faded">
+        <div v-if="post.edited?.at" class="edition-info">edited</div>
         <AppDate :timestamp="post.publishedAt" />
       </div>
     </div>
@@ -43,12 +53,8 @@
 </template>
 
 <script>
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-
-dayjs.extend(relativeTime);
-dayjs.extend(localizedFormat);
+import { mapActions } from "vuex";
+import PostEditor from "@/components/PostEditor.vue";
 
 export default {
   props: {
@@ -57,20 +63,30 @@ export default {
       type: Array
     }
   },
+  components: {
+    PostEditor
+  },
+  data() {
+    return {
+      editing: null
+    };
+  },
   computed: {
     users() {
       return this.$store.state.users;
     }
   },
   methods: {
+    ...mapActions(["updatePost"]),
     userById(userId) {
       return this.$store.getters.user(userId);
     },
-    diffForHumans(timestamp) {
-      return dayjs.unix(timestamp).fromNow();
+    toggleEditMode(id) {
+      this.editing = id === this.editing ? null : id;
     },
-    humanFriendlyDate(timestamp) {
-      return dayjs.unix(timestamp).format("llll");
+    handleUpdate(event) {
+      this.updatePost(event.post);
+      this.editing = null;
     }
   }
 };
