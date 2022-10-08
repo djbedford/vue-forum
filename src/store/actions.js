@@ -1,5 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
+import "firebase/compat/auth";
 import { findById, docToResource } from "@/helpers";
 
 export default {
@@ -121,9 +122,6 @@ export default {
 
     return findById(state.threads, threadReference.id);
   },
-  updateUser({ commit }, user) {
-    commit("setItem", { resource: "users", item: user });
-  },
   async updateThread({ commit, state }, { id, title, text }) {
     const thread = findById(state.threads, id);
     const post = findById(state.posts, thread.posts[0]);
@@ -157,6 +155,50 @@ export default {
     commit("setItem", { resource: "posts", item: newPost });
 
     return docToResource(newThread);
+  },
+  async registerUserWithEmailAndPassword(
+    { dispatch },
+    { name, username, email, password, avatar = null }
+  ) {
+    const result = await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password);
+    await dispatch("createUser", {
+      id: result.user.uid,
+      name,
+      username,
+      email,
+      avatar
+    });
+  },
+  async createUser({ commit }, { id, name, username, email, avatar = null }) {
+    const registeredAt = firebase.firestore.FieldValue.serverTimestamp();
+    const usernameLower = username.toLowerCase();
+    email = email.toLowerCase();
+
+    const user = {
+      name,
+      username,
+      email,
+      avatar,
+      registeredAt,
+      usernameLower
+    };
+    const userReference = firebase
+      .firestore()
+      .collection("users")
+      .doc(id);
+
+    userReference.set(user);
+
+    const newUser = await userReference.get();
+
+    commit("setItem", { resource: "users", item: newUser });
+
+    return docToResource(newUser);
+  },
+  updateUser({ commit }, user) {
+    commit("setItem", { resource: "users", item: user });
   },
   fetchAllCategories({ commit }) {
     return new Promise(resolve => {
@@ -208,11 +250,18 @@ export default {
   fetchUsers: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "users" }),
 
-  fetchAuthUser: ({ dispatch, state }) =>
-    dispatch("fetchUser", { id: state.authId }),
+  fetchAuthUser: ({ dispatch, commit }) => {
+    const userId = firebase.auth().currentUser?.uid;
+
+    if (!userId) {
+      return;
+    }
+
+    dispatch("fetchUser", { id: userId });
+    commit("setAuthId", userId);
+  },
 
   fetchItem({ commit }, { id, resource }) {
-    console.log('🔥', resource, id)
     return new Promise(resolve => {
       const unsubscribe = firebase
         .firestore()

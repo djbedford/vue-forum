@@ -8,6 +8,7 @@ import NotFound from "@/pages/NotFound.vue";
 import Forum from "@/pages/Forum.vue";
 import Category from "@/pages/Category.vue";
 import Profile from "@/pages/Profile.vue";
+import Register from "@/pages/Register.vue";
 
 import sourceData from "@/data.json";
 import { findById } from "@/helpers";
@@ -79,6 +80,11 @@ const routes = [
     name: "ThreadEdit",
     component: ThreadEdit,
     props: true
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: Register
   },
   {
     path: "/:pathMatch(.*)*",
