@@ -35,7 +35,7 @@
       </form>
 
       <div class="push-top text-center">
-        <button class="btn-red btn-xsmall">
+        <button @click="logInWithGoogle" class="btn-red btn-xsmall">
           <i class="fa fa-google fa-btn"></i>Sign in with Google
         </button>
       </div>
@@ -63,6 +63,10 @@ export default {
       } catch (error) {
         alert(error.message);
       }
+    },
+    async logInWithGoogle() {
+      await this.$store.dispatch("logInWithGoogle");
+      this.$router.push({ name: "Home" });
     }
   },
   created() {

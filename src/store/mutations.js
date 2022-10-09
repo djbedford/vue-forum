@@ -23,6 +23,9 @@ export default {
     parent: "threads",
     child: "contributors"
   }),
+  setAuthUserUnsubscribe(state, unsubscribe) {
+    state.authUserUnsubscribe = unsubscribe;
+  },
   appendUnsubscribe(state, { unsubscribe }) {
     state.unsubscribes.push(unsubscribe);
   },
