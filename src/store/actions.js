@@ -156,6 +156,13 @@ export default {
 
     return docToResource(newThread);
   },
+  logInWithEmailAndPassword(context, { email, password }) {
+    return firebase.auth().signInWithEmailAndPassword(email, password);
+  },
+  async logOut({ commit }) {
+    await firebase.auth().signOut();
+    commit("setAuthId", null);
+  },
   async registerUserWithEmailAndPassword(
     { dispatch },
     { name, username, email, password, avatar = null }

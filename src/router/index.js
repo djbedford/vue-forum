@@ -9,6 +9,7 @@ import Forum from "@/pages/Forum.vue";
 import Category from "@/pages/Category.vue";
 import Profile from "@/pages/Profile.vue";
 import Register from "@/pages/Register.vue";
+import LogIn from "@/pages/LogIn.vue";
 
 import sourceData from "@/data.json";
 import { findById } from "@/helpers";
@@ -85,6 +86,11 @@ const routes = [
     path: "/register",
     name: "Register",
     component: Register
+  },
+  {
+    path: "/login",
+    name: "LogIn",
+    component: LogIn
   },
   {
     path: "/:pathMatch(.*)*",
