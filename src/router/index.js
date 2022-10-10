@@ -94,12 +94,18 @@ const routes = [
   {
     path: "/register",
     name: "Register",
-    component: Register
+    component: Register,
+    meta: {
+      requiresGuest: true
+    }
   },
   {
     path: "/login",
     name: "LogIn",
-    component: LogIn
+    component: LogIn,
+    meta: {
+      requiresGuest: true
+    }
   },
   {
     path: "/logout",
@@ -140,6 +146,13 @@ router.beforeEach(async to => {
   store.dispatch("unsubscribeAllSnapshots");
 
   if (to.meta.requiresAuth && !store.state.authId) {
+    return {
+      name: "LogIn",
+      query: { redirectTo: to.path }
+    };
+  }
+
+  if (to.meta.requiresGuest && store.state.authId) {
     return { name: "Home" };
   }
 });
