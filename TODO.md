@@ -7,4 +7,5 @@
 # Create dedicated Post component
 # Convert to TypeScript
 # Add tests
-# Upgrade to using firebase v9 
+# Upgrade to using firebase v9
+# Add beforeRouteLeave to PostEditor to check for changes before leaving

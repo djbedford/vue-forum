@@ -10,8 +10,6 @@ import Category from "@/pages/Category.vue";
 import Profile from "@/pages/Profile.vue";
 import Register from "@/pages/Register.vue";
 import LogIn from "@/pages/LogIn.vue";
-
-import sourceData from "@/data.json";
 import { findById } from "@/helpers";
 import store from "@/store";
 
@@ -27,7 +25,8 @@ const routes = [
     component: Profile,
     meta: {
       toTop: true,
-      smoothScroll: true
+      smoothScroll: true,
+      requiresAuth: true
     }
   },
   {
@@ -36,6 +35,9 @@ const routes = [
     component: Profile,
     props: {
       edit: true
+    },
+    meta: {
+      requiresAuth: true
     }
   },
   {
@@ -54,33 +56,40 @@ const routes = [
     path: "/forum/:id/thread/create",
     name: "ThreadCreate",
     component: ThreadCreate,
-    props: true
+    props: true,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/thread/:id",
     name: "ThreadShow",
     component: ThreadShow,
-    props: true
-    // beforeEnter(to, from, next) {
-    //   const threadExists = findById(sourceData.threads, to.params.id);
+    props: true,
+    async beforeEnter(to, from, next) {
+      await store.dispatch("fetchThread", { id: to.params.id });
+      const threadExists = findById(store.state.threads, to.params.id);
 
-    //   if (!threadExists) {
-    //     return next({
-    //       name: "NotFound",
-    //       params: { pathMatch: to.path.substring(1).split("/") },
-    //       query: to.query,
-    //       hash: to.hash
-    //     });
-    //   }
+      if (!threadExists) {
+        return next({
+          name: "NotFound",
+          params: { pathMatch: to.path.substring(1).split("/") },
+          query: to.query,
+          hash: to.hash
+        });
+      }
 
-    //   return next();
-    // }
+      return next();
+    }
   },
   {
     path: "/thread/:id/edit",
     name: "ThreadEdit",
     component: ThreadEdit,
-    props: true
+    props: true,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/register",
@@ -91,6 +100,15 @@ const routes = [
     path: "/login",
     name: "LogIn",
     component: LogIn
+  },
+  {
+    path: "/logout",
+    name: "LogOut",
+    async beforeEnter(to, from) {
+      await store.dispatch("logOut");
+
+      return { name: "Home" };
+    }
   },
   {
     path: "/:pathMatch(.*)*",
@@ -117,8 +135,13 @@ const router = createRouter({
   }
 });
 
-router.beforeEach(() => {
+router.beforeEach(async to => {
+  await store.dispatch("initAuthentication");
   store.dispatch("unsubscribeAllSnapshots");
+
+  if (to.meta.requiresAuth && !store.state.authId) {
+    return { name: "Home" };
+  }
 });
 
 export default router;

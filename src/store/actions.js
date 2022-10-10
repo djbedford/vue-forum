@@ -4,6 +4,26 @@ import "firebase/compat/auth";
 import { findById, docToResource } from "@/helpers";
 
 export default {
+  initAuthentication({ dispatch, commit, state }) {
+    if (state.authObserverUnsubscribe) {
+      state.authObserverUnsubscribe();
+    }
+
+    return new Promise(resolve => {
+      const unsubscribe = firebase.auth().onAuthStateChanged(async user => {
+        dispatch("unsubscribeAuthUserSnapshot");
+
+        if (user) {
+          await dispatch("fetchAuthUser");
+          resolve(user);
+        } else {
+          resolve(null);
+        }
+      });
+
+      commit("setAuthObserverUnsubscribe", unsubscribe);
+    });
+  },
   async createPost({ commit, state }, post) {
     post.userId = state.authId;
     post.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -277,14 +297,14 @@ export default {
   fetchUsers: ({ dispatch }, { ids }) =>
     dispatch("fetchItems", { ids, resource: "users" }),
 
-  fetchAuthUser: ({ dispatch, commit }) => {
+  fetchAuthUser: async ({ dispatch, commit }) => {
     const userId = firebase.auth().currentUser?.uid;
 
     if (!userId) {
       return;
     }
 
-    dispatch("fetchItem", {
+    await dispatch("fetchItem", {
       id: userId,
       resource: "users",
       handleUnsubscribe: unsubscribe => {
@@ -301,14 +321,18 @@ export default {
         .collection(resource)
         .doc(id)
         .onSnapshot(doc => {
-          const item = {
-            id: doc.id,
-            ...doc.data()
-          };
+          if (doc.exists) {
+            const item = {
+              id: doc.id,
+              ...doc.data()
+            };
 
-          commit("setItem", { resource, item });
+            commit("setItem", { resource, item });
 
-          resolve(item);
+            resolve(item);
+          } else {
+            resolve(null);
+          }
         });
 
       if (handleUnsubscribe) {
