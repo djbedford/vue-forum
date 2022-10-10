@@ -1,8 +1,9 @@
-VXjpr2WHa8Ux4Bnggym8QFLdv5C3Itef<template>
+<template>
   <div v-if="asyncDataStatus_ready" class="col-large push-top">
     <h1>
       {{ thread.title }}
       <router-link
+        v-if="thread.userId === authUser?.id"
         :to="{ name: 'ThreadEdit', id: this.id }"
         class="btn-green btn-small"
         tag="button"
@@ -22,12 +23,23 @@ VXjpr2WHa8Ux4Bnggym8QFLdv5C3Itef<template>
     </p>
 
     <post-list :posts="threadPosts" />
-    <post-editor @save="addPost" />
+    <post-editor v-if="authUser" @save="addPost" />
+    <div v-else class="text-center" style="margin-bottom: 50px;">
+      <router-link :to="{ name: 'LogIn', query: { redirectTo: $route.path } }"
+        >Log In</router-link
+      >
+      or
+      <router-link
+        :to="{ name: 'Register', query: { redirectTo: $route.path } }"
+        >Register</router-link
+      >
+      to reply.
+    </div>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import PostList from "@/components/PostList.vue";
 import PostEditor from "@/components/PostEditor.vue";
@@ -46,6 +58,7 @@ export default {
   },
   mixins: [asyncDataStatus],
   computed: {
+    ...mapGetters(["authUser"]),
     thread() {
       return this.$store.getters.thread(this.id);
     },
