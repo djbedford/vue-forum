@@ -6,6 +6,7 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import firebaseConfig from "@/config/firebase";
 import fontAwesome from "@/plugins/fontawesome";
+import ClickOutsideDirective from "@/plugins/ClickOutsideDirective";
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -14,6 +15,7 @@ const forumApp = createApp(App);
 forumApp.use(router);
 forumApp.use(store);
 forumApp.use(fontAwesome);
+forumApp.use(ClickOutsideDirective);
 
 const requireComponent = require.context(
   "./components",
