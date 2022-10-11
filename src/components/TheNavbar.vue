@@ -40,7 +40,7 @@
                 >
               </li>
               <li class="dropdown-menu-item">
-                <a @click.prevent="$store.dispatch('logOut')">Log Out</a>
+                <a @click.prevent="$store.dispatch('auth/logOut')">Log Out</a>
               </li>
             </ul>
           </div>
@@ -89,7 +89,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["authUser"])
+    ...mapGetters("auth", ["authUser"])
   }
 };
 </script>
