@@ -1,5 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
+import chunk from "lodash/chunk";
 
 import {
   findById,
@@ -154,7 +155,16 @@ export default {
       dispatch("fetchItem", { id, resource: "threads" }, { root: true }),
 
     fetchThreads: ({ dispatch }, { ids }) =>
-      dispatch("fetchItems", { ids, resource: "threads" }, { root: true })
+      dispatch("fetchItems", { ids, resource: "threads" }, { root: true }),
+
+    fetchThreadsByPage: ({ dispatch, commit }, { ids, page, perPage = 10 }) => {
+      commit("clearThreads");
+
+      const chunks = chunk(ids, perPage);
+      const limitedIds = chunks[page - 1];
+
+      return dispatch("fetchThreads", { ids: limitedIds });
+    }
   },
   mutations: {
     appendPostToThread: makeAppendChildToParentMutation({
@@ -164,6 +174,9 @@ export default {
     appendContributorToThread: makeAppendChildToParentMutation({
       parent: "threads",
       child: "contributors"
-    })
+    }),
+    clearThreads(state) {
+      state.items = [];
+    }
   }
 };

@@ -8,6 +8,7 @@ import firebaseConfig from "@/config/firebase";
 import fontAwesome from "@/plugins/fontawesome";
 import ClickOutsideDirective from "@/plugins/ClickOutsideDirective";
 import PageScrollDirective from "@/plugins/PageScrollDirective";
+import Vue3Pagination from "@/plugins/vue3pagination";
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -18,6 +19,7 @@ forumApp.use(store);
 forumApp.use(fontAwesome);
 forumApp.use(ClickOutsideDirective);
 forumApp.use(PageScrollDirective);
+forumApp.use(Vue3Pagination);
 
 const requireComponent = require.context(
   "./components",
