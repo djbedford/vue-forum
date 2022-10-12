@@ -1,5 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
+import { makeFetchItemAction, makeFetchItemsAction } from "@/helpers";
 
 export default {
   namespaced: true,
@@ -90,11 +91,9 @@ export default {
       );
     },
 
-    fetchPost: ({ dispatch }, { id }) =>
-      dispatch("fetchItem", { id, resource: "posts" }, { root: true }),
+    fetchPost: makeFetchItemAction({ resource: "posts" }),
 
-    fetchPosts: ({ dispatch }, { ids }) =>
-      dispatch("fetchItems", { ids, resource: "posts" }, { root: true })
+    fetchPosts: makeFetchItemsAction({ resource: "posts" })
   },
   mutations: {}
 };

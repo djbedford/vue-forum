@@ -1,5 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
+import { makeFetchItemAction, makeFetchItemsAction } from "@/helpers";
 
 export default {
   namespaced: true,
@@ -32,11 +33,9 @@ export default {
         commit("appendUnsubscribe", { unsubscribe }, { root: true });
       });
     },
-    fetchCategory: ({ dispatch }, { id }) =>
-      dispatch("fetchItem", { id, resource: "categories" }, { root: true }),
+    fetchCategory: makeFetchItemAction({ resource: "categories" }),
 
-    fetchCategories: ({ dispatch }, { ids }) =>
-      dispatch("fetchItems", { ids, resource: "categories" }, { root: true })
+    fetchCategories: makeFetchItemsAction({ resource: "categories" })
   },
   mutations: {}
 };

@@ -40,9 +40,11 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import difference from "lodash/difference";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import PostList from "@/components/PostList.vue";
 import PostEditor from "@/components/PostEditor.vue";
+import useNotifications from "@/composables/useNotifications";
 
 export default {
   name: "ThreadShow",
@@ -57,6 +59,11 @@ export default {
     PostEditor
   },
   mixins: [asyncDataStatus],
+  setup() {
+    const { addNotification } = useNotifications();
+
+    return { addNotification };
+  },
   computed: {
     ...mapGetters("auth", ["authUser"]),
     thread() {
@@ -83,18 +90,61 @@ export default {
       };
 
       this.createPost(post);
+    },
+    async fetchPostsWithUsers(ids) {
+      const posts = await this.fetchPosts({
+        ids,
+        onSnapshot: ({ previousItem, isLocal }) => {
+          if (isLocal) {
+            return;
+          }
+
+          if (!this.asyncDataStatus_ready) {
+            return;
+          }
+
+          if (previousItem?.edited && !previousItem?.edited?.at) {
+            return;
+          }
+
+          this.addNotification({
+            message: "Thread recently updated!",
+            timeout: 5000
+          });
+        }
+      });
+
+      const users = posts.map(post => post.userId).concat(this.thread.userId);
+      await this.fetchUsers({ ids: users });
     }
   },
   async created() {
-    const thread = await this.fetchThread({ id: this.id });
+    const thread = await this.fetchThread({
+      id: this.id,
+      onSnapshot: ({ item, previousItem, isLocal }) => {
+        if (isLocal) {
+          return;
+        }
 
-    const posts = await this.fetchPosts({
-      ids: thread.posts
+        if (!this.asyncDataStatus_ready) {
+          return;
+        }
+
+        const newPosts = difference(item.posts, previousItem.posts);
+        const hasNewPosts = newPosts.length > 0;
+
+        if (hasNewPosts) {
+          this.fetchPostsWithUsers(newPosts);
+        } else {
+          this.addNotification({
+            message: "Thread recently updated!",
+            timeout: 5000
+          });
+        }
+      }
     });
 
-    const users = posts.map(post => post.userId).concat(thread.userId);
-    await this.fetchUsers({ ids: users });
-
+    await this.fetchPostsWithUsers(thread.posts);
     this.asyncDataStatus_fetched();
   }
 };

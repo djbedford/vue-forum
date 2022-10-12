@@ -1,11 +1,12 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import chunk from "lodash/chunk";
-
 import {
   findById,
   docToResource,
-  makeAppendChildToParentMutation
+  makeAppendChildToParentMutation,
+  makeFetchItemAction,
+  makeFetchItemsAction
 } from "@/helpers";
 
 export default {
@@ -151,11 +152,9 @@ export default {
       return docToResource(newThread);
     },
 
-    fetchThread: ({ dispatch }, { id }) =>
-      dispatch("fetchItem", { id, resource: "threads" }, { root: true }),
+    fetchThread: makeFetchItemAction({ resource: "threads" }),
 
-    fetchThreads: ({ dispatch }, { ids }) =>
-      dispatch("fetchItems", { ids, resource: "threads" }, { root: true }),
+    fetchThreads: makeFetchItemsAction({ resource: "threads" }),
 
     fetchThreadsByPage: ({ dispatch, commit }, { ids, page, perPage = 10 }) => {
       commit("clearThreads");

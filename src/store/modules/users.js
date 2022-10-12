@@ -4,7 +4,9 @@ import "firebase/compat/auth";
 import {
   findById,
   docToResource,
-  makeAppendChildToParentMutation
+  makeAppendChildToParentMutation,
+  makeFetchItemAction,
+  makeFetchItemsAction
 } from "@/helpers";
 
 export default {
@@ -89,11 +91,9 @@ export default {
       await userReference.update(updates);
       commit("setItem", { resource: "users", item: user }, { root: true });
     },
-    fetchUser: ({ dispatch }, { id }) =>
-      dispatch("fetchItem", { id, resource: "users" }, { root: true }),
+    fetchUser: makeFetchItemAction({ resource: "users" }),
 
-    fetchUsers: ({ dispatch }, { ids }) =>
-      dispatch("fetchItems", { ids, resource: "users" }, { root: true })
+    fetchUsers: makeFetchItemsAction({ resource: "users" })
   },
   mutations: {
     appendThreadToUser: makeAppendChildToParentMutation({
