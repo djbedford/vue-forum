@@ -5,6 +5,22 @@
   </div>
 </template>
 
+<script>
+export default {
+  props: {
+    colour: {
+      type: String,
+      default: "#263959"
+    }
+  },
+  data() {
+    return {
+      spinnerColour: this.colour
+    };
+  }
+};
+</script>
+
 <style scoped>
 .spinner {
   width: 40px;
