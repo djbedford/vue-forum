@@ -1,6 +1,6 @@
 <template>
   <div class="profile-card">
-    <form @submit.prevent="save">
+    <vee-form @submit="save">
       <p class="text-center avatar-edit">
         <label for="avatar">
           <app-avatar-img
@@ -31,33 +31,27 @@
         @hit="activeUser.avatar = $event"
       />
 
-      <div class="form-group">
-        <input
-          v-model="activeUser.username"
-          type="text"
-          placeholder="Username"
-          class="form-input text-lead text-bold"
-        />
-      </div>
+      <app-form-field
+        v-model="activeUser.username"
+        name="username"
+        placeholder="Username"
+        :rules="`required|unique:users,username,${user.username}`"
+      />
 
-      <div class="form-group">
-        <input
-          v-model="activeUser.name"
-          type="text"
-          placeholder="Full Name"
-          class="form-input text-lead"
-        />
-      </div>
+      <app-form-field
+        v-model="activeUser.name"
+        name="name"
+        rules="required"
+        placeholder="Full Name"
+      />
 
-      <div class="form-group">
-        <label for="user_bio">Bio</label>
-        <textarea
-          v-model="activeUser.bio"
-          class="form-input"
-          id="user_bio"
-          placeholder="Write a few words about yourself."
-        ></textarea>
-      </div>
+      <app-form-field
+        as="textarea"
+        name="bio"
+        label="Bio"
+        v-model="activeUser.bio"
+        placeholder="Write a few words about yourself."
+      />
 
       <div class="stats">
         <span>{{ user.postsCount }} posts</span>
@@ -66,35 +60,36 @@
 
       <hr />
 
-      <div class="form-group">
-        <label class="form-label" for="user_website">Website</label>
-        <input
-          v-model="activeUser.website"
-          autocomplete="off"
-          class="form-input"
-          id="user_website"
-        />
-      </div>
+      <app-form-field
+        v-model="activeUser.website"
+        name="website"
+        label="Website"
+        autocomplete="off"
+        rules="url"
+      />
 
-      <div class="form-group">
-        <label class="form-label" for="user_email">Email</label>
-        <input
-          v-model="activeUser.email"
-          autocomplete="off"
-          class="form-input"
-          id="user_email"
-        />
-      </div>
+      <app-form-field
+        v-model="activeUser.email"
+        name="email"
+        label="Email"
+        type="email"
+        :rules="`required|email|unique:users,email,${user.email}`"
+      />
 
-      <div class="form-group">
-        <label class="form-label" for="user_location">Location</label>
-        <input
-          v-model="activeUser.location"
-          autocomplete="off"
-          class="form-input"
-          id="user_location"
+      <app-form-field
+        v-model="activeUser.location"
+        name="location"
+        label="Location"
+        list="locations"
+        @mouseenter="loadLocationOptions"
+      />
+      <datalist id="locations">
+        <option
+          v-for="location in locationOptions"
+          :value="location.name.common"
+          :key="location.name.common"
         />
-      </div>
+      </datalist>
 
       <div class="btn-group space-between">
         <button type="reset" class="btn-ghost" @click.prevent="cancel">
@@ -102,7 +97,7 @@
         </button>
         <button type="submit" class="btn-blue">Save</button>
       </div>
-    </form>
+    </vee-form>
   </div>
 </template>
 
@@ -121,11 +116,21 @@ export default {
   data() {
     return {
       uploadingImage: false,
-      activeUser: { ...this.user }
+      activeUser: { ...this.user },
+      locationOptions: []
     };
   },
   methods: {
     ...mapActions("auth", ["uploadAvatar"]),
+    async loadLocationOptions() {
+      if (this.locationOptions.length) {
+        return;
+      }
+
+      const response = await fetch("https://restcountries.com/v3/all");
+
+      this.locationOptions = await response.json();
+    },
     async handleAvatarUpload(event) {
       this.uploadingImage = true;
       const file = event.target.files[0];

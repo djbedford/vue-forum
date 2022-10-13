@@ -1705,6 +1705,16 @@
     "@types/webpack-sources" "*"
     source-map "^0.6.0"
 
+"@vee-validate/i18n@^4.7.0":
+  version "4.7.0"
+  resolved "https://registry.npmjs.org/@vee-validate/i18n/-/i18n-4.7.0.tgz"
+  integrity sha512-NwoqzTprINUGwt9QmF4QUS+tPbHH16wSrYHKl3Q6h1rJcGaPoQPc2dvR3Pp5n/QMU1Ey8vNPcj2QrCoEjuD67w==
+
+"@vee-validate/rules@^4.7.0":
+  version "4.7.0"
+  resolved "https://registry.npmjs.org/@vee-validate/rules/-/rules-4.7.0.tgz"
+  integrity sha512-DdJY7DJEvIr1i3rBSbd3Vc0c+sKt4/pT/IIHQmQ7tSviqjNTHOnUalbqa5t+4z5OOz8L71ic0lqJHlgaPRgMGQ==
+
 "@vue/babel-helper-vue-jsx-merge-props@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@vue/babel-helper-vue-jsx-merge-props/-/babel-helper-vue-jsx-merge-props-1.0.0.tgz"
@@ -9800,6 +9810,13 @@ vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+
+vee-validate@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.npmjs.org/vee-validate/-/vee-validate-4.7.0.tgz"
+  integrity sha512-7HW2RE8mWaT57Jn+JU7jwczFqtlc1rIAwSbp8kD1L2sO0plhT9YeDNKW5iaI9baosc4h+iyb6itMlXtqAAqAfw==
+  dependencies:
+    "@vue/devtools-api" "^6.1.4"
 
 vendors@^1.0.0:
   version "1.0.4"
