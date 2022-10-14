@@ -8,7 +8,7 @@
       :label="label"
       class="form-input"
       v-bind="$attrs"
-      @input="$emit('modelUpdate', $event)"
+      @input="$emit('model-update', $event)"
     />
     <vee-error-message :name="name" class="form-error" />
   </div>
@@ -19,7 +19,7 @@ export default {
   inheritAttrs: false,
   props: {
     name: { required: true, type: String },
-    label: { required: true, type: String },
+    label: { type: String, default: "" },
     modelValue: { type: String, default: "" }
   }
 };

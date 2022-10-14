@@ -1,6 +1,4 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
-import "firebase/compat/auth";
+import firebase from "@/helpers/firebase";
 import {
   findById,
   docToResource,
@@ -37,6 +35,9 @@ export default {
             return rootState.threads.items.filter(
               thread => thread.userId === user.id
             );
+          },
+          get threadIds() {
+            return user.threads;
           },
           get threadsCount() {
             return user.threads?.length || 0;

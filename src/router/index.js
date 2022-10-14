@@ -160,4 +160,10 @@ router.beforeEach(async to => {
   }
 });
 
+router.afterEach(() => {
+  store.dispatch("clearItems", {
+    modules: ["categories", "forums", "threads", "posts"]
+  });
+});
+
 export default router;

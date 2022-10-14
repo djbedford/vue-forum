@@ -1,6 +1,5 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
 import chunk from "lodash/chunk";
+import firebase from "@/helpers/firebase";
 import {
   findById,
   docToResource,
@@ -107,7 +106,7 @@ export default {
       );
       await dispatch(
         "posts/createPost",
-        { text, threadId: threadReference.id },
+        { text, threadId: threadReference.id, firstInThread: true },
         { root: true }
       );
 

@@ -1,7 +1,4 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
-import "firebase/compat/auth";
-import "firebase/compat/storage";
+import firebase from "@/helpers/firebase";
 import useNotifications from "@/composables/useNotifications";
 
 export default {
@@ -92,6 +89,21 @@ export default {
         },
         { root: true }
       );
+    },
+
+    async updateEmail({ state }, { email }) {
+      firebase.auth().currentUser.updateEmail(email);
+    },
+
+    async reauthenticate({ state }, { email, password }) {
+      const credential = firebase.auth.EmailAuthProvider.credential(
+        email,
+        password
+      );
+
+      await firebase
+        .auth()
+        .currentUser.reauthenticateWithCredential(credential);
     },
 
     async uploadAvatar({ state }, { authId, file, filename }) {

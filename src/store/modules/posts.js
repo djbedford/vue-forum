@@ -1,5 +1,4 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
+import firebase from "@/helpers/firebase";
 import { makeFetchItemAction, makeFetchItemsAction } from "@/helpers";
 
 export default {
@@ -12,6 +11,7 @@ export default {
     async createPost({ commit, state, rootState }, post) {
       post.userId = rootState.auth.authId;
       post.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
+      post.firstInThread = post.firstInThread || false;
 
       const batch = firebase.firestore().batch();
       const postReference = firebase
@@ -28,12 +28,18 @@ export default {
         .doc(rootState.auth.authId);
 
       batch.set(postReference, post);
-      batch.update(threadReference, {
-        posts: firebase.firestore.FieldValue.arrayUnion(postReference.id),
-        contributors: firebase.firestore.FieldValue.arrayUnion(
+
+      const threadUpdates = {
+        posts: firebase.firestore.FieldValue.arrayUnion(postReference.id)
+      };
+
+      if (!post.firstInThread) {
+        threadUpdates.contributors = firebase.firestore.FieldValue.arrayUnion(
           rootState.auth.authId
-        )
-      });
+        );
+      }
+
+      batch.update(threadReference, threadUpdates);
       batch.update(userReference, {
         postsCount: firebase.firestore.FieldValue.increment(1)
       });
@@ -57,14 +63,17 @@ export default {
         },
         { root: true }
       );
-      commit(
-        "threads/appendContributorToThread",
-        {
-          childId: rootState.auth.authId,
-          parentId: post.threadId
-        },
-        { root: true }
-      );
+
+      if (!post.firstInThread) {
+        commit(
+          "threads/appendContributorToThread",
+          {
+            childId: rootState.auth.authId,
+            parentId: post.threadId
+          },
+          { root: true }
+        );
+      }
     },
     async updatePost({ commit, state, rootState }, { text, id }) {
       const post = {

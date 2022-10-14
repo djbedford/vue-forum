@@ -1,6 +1,4 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
-import "firebase/compat/auth";
+import firebase from "@/helpers/firebase";
 import { findById } from "@/helpers";
 
 export default {
@@ -48,12 +46,18 @@ export default {
       }
     });
   },
-  fetchItems: ({ dispatch }, { ids, resource, onSnapshot = null }) =>
-    Promise.all(
+  fetchItems: ({ dispatch }, { ids, resource, onSnapshot = null }) => {
+    ids = ids || [];
+
+    return Promise.all(
       ids.map(id => dispatch("fetchItem", { id, resource, onSnapshot }))
-    ),
+    );
+  },
   unsubscribeAllSnapshots({ state, commit }) {
     state.unsubscribes.forEach(unsubscribe => unsubscribe());
     commit("clearAllUnsubscribes");
+  },
+  clearItems({ commit }, { modules = [] }) {
+    commit("clearItems", { modules });
   }
 };
