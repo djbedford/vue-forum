@@ -10,7 +10,6 @@
     </router-link>
 
     <div class="btn-hamburger" @click="mobileNavMenu = !mobileNavMenu">
-      <!-- use .btn-humburger-active to open the menu -->
       <div class="top bar"></div>
       <div class="middle bar"></div>
       <div class="bottom bar"></div>
@@ -37,8 +36,6 @@
             </span>
           </a>
 
-          <!-- dropdown menu -->
-          <!-- add class "active-drop" to show the dropdown -->
           <div id="user-dropdown" :class="{ 'active-drop': userDropdownOpen }">
             <div class="triangle-drop"></div>
             <ul class="dropdown-menu">
@@ -78,28 +75,6 @@
           >
         </li>
       </ul>
-
-      <!-- <ul>
-        <li class="navbar-item">
-          <a href="index.html">Home</a>
-        </li>
-        <li class="navbar-item">
-          <a href="category.html">Category</a>
-        </li>
-        <li class="navbar-item">
-          <a href="forum.html">Forum</a>
-        </li>
-        <li class="navbar-item">
-          <a href="thread.html">Thread</a>
-        </li>
-        Show these option only on mobile
-      <li class="navbar-item mobile-only">
-          <a href="profile.html">My Profile</a>
-        </li>
-        <li class="navbar-item mobile-only">
-          <a href="#">Logout</a>
-        </li>
-      </ul> -->
     </nav>
   </header>
 </template>
@@ -118,7 +93,7 @@ export default {
     ...mapGetters("auth", ["authUser"])
   },
   created() {
-    this.$router.beforeEach((to, from) => {
+    this.$router.beforeEach(() => {
       this.mobileNavMenu = false;
     });
   }
