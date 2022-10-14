@@ -1,0 +1,99 @@
+<template>
+  <div v-if="asyncDataStatus_ready" class="container col-full">
+    <div class="col-full push-top">
+      <div class="forum-header">
+        <div class="forum-details">
+          <h1>{{ forum.name }}</h1>
+          <p class="text-lead">{{ forum.description }}</p>
+        </div>
+        <router-link
+          :to="{ name: 'ThreadCreate', params: { id: forum.id } }"
+          class="btn-green btn-small"
+          >Start a thread</router-link
+        >
+      </div>
+    </div>
+    <div class="col-full push-top">
+      <thread-list :threads="threads" />
+      <v-pagination v-model="page" :pages="totalPages" active-color="#57AD8D" />
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapActions } from "vuex";
+import { findById } from "@/helpers";
+import asyncDataStatus from "@/mixins/asyncDataStatus";
+import ThreadList from "@/components/ThreadList.vue";
+
+export default {
+  props: {
+    id: {
+      required: true,
+      type: String
+    }
+  },
+  data() {
+    return {
+      page: parseInt(this.$route.query.page) || 1,
+      perPage: 10
+    };
+  },
+  components: {
+    ThreadList
+  },
+  mixins: [asyncDataStatus],
+  computed: {
+    forum() {
+      return findById(this.$store.state.forums.items, this.id);
+    },
+    threads() {
+      if (!this.forum) {
+        return [];
+      }
+
+      return this.forum.threads
+        ? this.$store.state.threads.items
+            .filter(thread => thread.forumId === this.forum.id)
+            .map(thread => this.$store.getters["threads/thread"](thread.id))
+        : [];
+    },
+    threadCount() {
+      return this.forum.threads?.length || 0;
+    },
+    totalPages() {
+      if (!this.threadCount) {
+        return 0;
+      }
+
+      return Math.ceil(this.threadCount / this.perPage);
+    }
+  },
+  methods: {
+    ...mapActions("forums", ["fetchForum"]),
+    ...mapActions("threads", ["fetchThreadsByPage"]),
+    ...mapActions("users", ["fetchUsers"])
+  },
+  watch: {
+    async page(page) {
+      this.$router.push({ query: { page: this.page } });
+    }
+  },
+  async created() {
+    const forum = await this.fetchForum({ id: this.id });
+    const threads = await this.fetchThreadsByPage({
+      ids: forum.threads,
+      page: this.page,
+      perPage: this.perPage
+    });
+
+    await this.fetchUsers({
+      ids: threads.map(thread => thread.userId)
+    });
+
+    this.asyncDataStatus_fetched();
+  }
+};
+</script>
+
+<style scoped></style>

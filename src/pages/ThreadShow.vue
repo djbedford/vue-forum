@@ -1,59 +1,151 @@
 <template>
-  <div v-for="thread in threads" :key="thread.id" class="col-large push-top">
-    <h1>{{ thread.title }}</h1>
+  <div v-if="asyncDataStatus_ready" class="col-large push-top">
+    <h1>
+      {{ thread.title }}
+      <router-link
+        v-if="thread.userId === authUser?.id"
+        :to="{ name: 'ThreadEdit', id: this.id }"
+        class="btn-green btn-small"
+        tag="button"
+        >Edit Thread</router-link
+      >
+    </h1>
 
-    <div class="post-list">
-      <div v-for="postId in thread.posts" :key="postId" class="post">
-        <div class="user-info">
-          <a href="#" class="user-name">{{
-            userById(postById(postId).userId).name
-          }}</a>
+    <p>
+      By <a href="#" class="link-unstyled">{{ thread.author?.name }}</a
+      >, <AppDate :timestamp="thread.publishedAt" />.
+      <span
+        style="float:right; margin-top: 2px;"
+        class="hide-mobile text-faded text-small"
+        >{{ thread.repliesCount }} replies by
+        {{ thread.contributorsCount }} contributors</span
+      >
+    </p>
 
-          <a href="#">
-            <img
-              class="avatar-large"
-              :src="userById(postById(postId).userId).avatar"
-              alt=""
-            />
-          </a>
-
-          <p class="desktop-only text-small">107 posts</p>
-        </div>
-
-        <div class="post-content">
-          <div>
-            <p>
-              {{ postById(postId).text }}
-            </p>
-          </div>
-        </div>
-
-        <div class="post-date text-faded">
-          {{ postById(postId).publishedAt }}
-        </div>
-      </div>
+    <post-list :posts="threadPosts" />
+    <post-editor v-if="authUser" @save="addPost" />
+    <div v-else class="text-center" style="margin-bottom: 50px;">
+      <router-link :to="{ name: 'LogIn', query: { redirectTo: $route.path } }"
+        >Log In</router-link
+      >
+      or
+      <router-link
+        :to="{ name: 'Register', query: { redirectTo: $route.path } }"
+        >Register</router-link
+      >
+      to reply.
     </div>
   </div>
 </template>
 
 <script>
-import sourceData from "@/data.json";
+import { mapActions, mapGetters } from "vuex";
+import difference from "lodash/difference";
+import asyncDataStatus from "@/mixins/asyncDataStatus";
+import PostList from "@/components/PostList.vue";
+import PostEditor from "@/components/PostEditor.vue";
+import useNotifications from "@/composables/useNotifications";
 
 export default {
-  data() {
-    return {
-      threads: sourceData.threads,
-      posts: sourceData.posts,
-      users: sourceData.users
-    };
+  name: "ThreadShow",
+  props: {
+    id: {
+      required: true,
+      type: String
+    }
+  },
+  components: {
+    PostList,
+    PostEditor
+  },
+  mixins: [asyncDataStatus],
+  setup() {
+    const { addNotification } = useNotifications();
+
+    return { addNotification };
+  },
+  computed: {
+    ...mapGetters("auth", ["authUser"]),
+    thread() {
+      return this.$store.getters["threads/thread"](this.id);
+    },
+    threadPosts() {
+      return this.posts.filter(post => post.threadId === this.id);
+    },
+    threads() {
+      return this.$store.state.threads.items;
+    },
+    posts() {
+      return this.$store.state.posts.items;
+    }
   },
   methods: {
-    postById(postId) {
-      return this.posts.find(p => p.id === postId);
+    ...mapActions("posts", ["createPost", "fetchPosts"]),
+    ...mapActions("threads", ["fetchThread"]),
+    ...mapActions("users", ["fetchUsers"]),
+    addPost(eventData) {
+      const post = {
+        ...eventData.post,
+        threadId: this.id
+      };
+
+      this.createPost(post);
     },
-    userById(userId) {
-      return this.users.find(u => u.id === userId);
+    async fetchPostsWithUsers(ids) {
+      const posts = await this.fetchPosts({
+        ids,
+        onSnapshot: ({ previousItem, isLocal }) => {
+          if (isLocal) {
+            return;
+          }
+
+          if (!this.asyncDataStatus_ready) {
+            return;
+          }
+
+          if (previousItem?.edited && !previousItem?.edited?.at) {
+            return;
+          }
+
+          this.addNotification({
+            message: "Thread recently updated!",
+            timeout: 5000
+          });
+        }
+      });
+
+      const users = posts.map(post => post.userId).concat(this.thread.userId);
+      await this.fetchUsers({ ids: users });
     }
+  },
+  async created() {
+    const thread = await this.fetchThread({
+      id: this.id,
+      onSnapshot: ({ item, previousItem, isLocal }) => {
+        if (isLocal) {
+          return;
+        }
+
+        if (!this.asyncDataStatus_ready) {
+          return;
+        }
+
+        const newPosts = difference(item.posts, previousItem.posts);
+        const hasNewPosts = newPosts.length > 0;
+
+        if (hasNewPosts) {
+          this.fetchPostsWithUsers(newPosts);
+        } else {
+          this.addNotification({
+            message: "Thread recently updated!",
+            timeout: 5000
+          });
+        }
+      }
+    });
+
+    await this.fetchPostsWithUsers(thread.posts);
+    this.asyncDataStatus_fetched();
   }
 };
 </script>
