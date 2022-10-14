@@ -91,11 +91,11 @@ export default {
       );
     },
 
-    async updateEmail({ state }, { email }) {
+    async updateEmail({ state }, { email }) { // eslint-disable-line
       firebase.auth().currentUser.updateEmail(email);
     },
 
-    async reauthenticate({ state }, { email, password }) {
+    async reauthenticate({ state }, { email, password }) { // eslint-disable-line
       const credential = firebase.auth.EmailAuthProvider.credential(
         email,
         password

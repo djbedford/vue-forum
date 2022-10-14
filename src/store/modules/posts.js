@@ -8,7 +8,7 @@ export default {
   },
   getters: {},
   actions: {
-    async createPost({ commit, state, rootState }, post) {
+    async createPost({ commit, state, rootState }, post) { // eslint-disable-line
       post.userId = rootState.auth.authId;
       post.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
       post.firstInThread = post.firstInThread || false;
@@ -75,7 +75,7 @@ export default {
         );
       }
     },
-    async updatePost({ commit, state, rootState }, { text, id }) {
+    async updatePost({ commit, state, rootState }, { text, id }) { // eslint-disable-line
       const post = {
         text,
         edited: {

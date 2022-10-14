@@ -75,7 +75,7 @@ export default {
     ...mapActions("users", ["fetchUsers"])
   },
   watch: {
-    async page(page) {
+    async page() {
       this.$router.push({ query: { page: this.page } });
     }
   },
