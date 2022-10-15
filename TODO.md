@@ -1,4 +1,3 @@
-# Switch to Vite
 # Switch to Pinia
 # Use TailwindCSS for styling
 # Switch to Composition API
