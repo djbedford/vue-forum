@@ -3,11 +3,11 @@ export const findById = (resources, id) => {
     return null;
   }
 
-  return resources.find(resource => resource.id === id);
+  return resources.find((resource) => resource.id === id);
 };
 
 export const upsert = (resources, resource) => {
-  const index = resources.findIndex(r => r.id === resource.id);
+  const index = resources.findIndex((r) => r.id === resource.id);
 
   if (resource.id && index !== -1) {
     resources[index] = resource;
@@ -16,14 +16,14 @@ export const upsert = (resources, resource) => {
   }
 };
 
-export const docToResource = doc => {
+export const docToResource = (doc) => {
   if (typeof doc?.data !== "function") {
     return doc;
   }
 
   return {
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   };
 };
 
@@ -56,7 +56,7 @@ export const makeFetchItemsAction = ({ resource }) => {
     dispatch("fetchItems", { ...payload, resource }, { root: true });
 };
 
-export const arrayRandom = array => {
+export const arrayRandom = (array) => {
   const randomIndex = Math.floor(Math.random() * array.length);
 
   return array[randomIndex];

@@ -34,13 +34,13 @@ export default {
   props: {
     edit: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   components: {
     PostList,
     UserProfileCard,
-    UserProfileCardEditor
+    UserProfileCardEditor,
   },
   mixins: [asyncDataStatus],
   computed: {
@@ -51,18 +51,18 @@ export default {
       }
 
       return this.user.posts[this.user.posts.length - 1];
-    }
+    },
   },
   methods: {
     fetchUserPosts() {
       return this.$store.dispatch("auth/fetchAuthUserPosts", {
-        startAfter: this.lastPostFetched
+        startAfter: this.lastPostFetched,
       });
-    }
+    },
   },
   async created() {
     await this.fetchUserPosts();
     this.asyncDataStatus_fetched();
-  }
+  },
 };
 </script>

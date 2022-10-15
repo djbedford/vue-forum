@@ -5,17 +5,17 @@ import {
   docToResource,
   makeAppendChildToParentMutation,
   makeFetchItemAction,
-  makeFetchItemsAction
+  makeFetchItemsAction,
 } from "@/helpers";
 
 export default {
   namespaced: true,
   state: {
-    items: []
+    items: [],
   },
   getters: {
     thread: (state, getters, rootState) => {
-      return id => {
+      return (id) => {
         const thread = findById(state.items, id);
 
         if (!thread) {
@@ -32,10 +32,10 @@ export default {
           },
           get contributorsCount() {
             return thread.contributors?.length || 0;
-          }
+          },
         };
       };
-    }
+    },
   },
   actions: {
     async createThread(
@@ -45,17 +45,14 @@ export default {
       const userId = rootState.auth.authId;
       const publishedAt = firebase.firestore.FieldValue.serverTimestamp();
 
-      const threadReference = firebase
-        .firestore()
-        .collection("threads")
-        .doc();
+      const threadReference = firebase.firestore().collection("threads").doc();
 
       const thread = {
         forumId,
         title,
         publishedAt,
         userId,
-        id: threadReference.id
+        id: threadReference.id,
       };
 
       const userReference = firebase
@@ -70,10 +67,10 @@ export default {
 
       batch.set(threadReference, thread);
       batch.update(userReference, {
-        threads: firebase.firestore.FieldValue.arrayUnion(threadReference.id)
+        threads: firebase.firestore.FieldValue.arrayUnion(threadReference.id),
       });
       batch.update(forumReference, {
-        threads: firebase.firestore.FieldValue.arrayUnion(threadReference.id)
+        threads: firebase.firestore.FieldValue.arrayUnion(threadReference.id),
       });
 
       batch.commit();
@@ -84,7 +81,7 @@ export default {
         "setItem",
         {
           resource: "threads",
-          item: { id: newThread.id, ...newThread.data() }
+          item: { id: newThread.id, ...newThread.data() },
         },
         { root: true }
       );
@@ -92,7 +89,7 @@ export default {
         "forums/appendThreadToForum",
         {
           childId: threadReference.id,
-          parentId: forumId
+          parentId: forumId,
         },
         { root: true }
       );
@@ -100,7 +97,7 @@ export default {
         "users/appendThreadToUser",
         {
           childId: threadReference.id,
-          parentId: userId
+          parentId: userId,
         },
         { root: true }
       );
@@ -117,11 +114,11 @@ export default {
       const post = findById(rootState.posts.items, thread.posts[0]);
       let newThread = {
         ...thread,
-        title
+        title,
       };
       let newPost = {
         ...post,
-        text
+        text,
       };
       const threadReference = firebase
         .firestore()
@@ -162,19 +159,19 @@ export default {
       const limitedIds = chunks[page - 1];
 
       return dispatch("fetchThreads", { ids: limitedIds });
-    }
+    },
   },
   mutations: {
     appendPostToThread: makeAppendChildToParentMutation({
       parent: "threads",
-      child: "posts"
+      child: "posts",
     }),
     appendContributorToThread: makeAppendChildToParentMutation({
       parent: "threads",
-      child: "contributors"
+      child: "contributors",
     }),
     clearThreads(state) {
       state.items = [];
-    }
-  }
+    },
+  },
 };

@@ -4,6 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 library.add(faPencilAlt, faCamera);
 
-export default app => {
-  app.component("fa", FontAwesomeIcon);
+export default (app) => {
+  app.component("font-awesome", FontAwesomeIcon);
 };
