@@ -21,11 +21,11 @@ export default {
   name: "App",
   components: {
     TheNavbar,
-    AppNotifications
+    AppNotifications,
   },
   data() {
     return {
-      showPage: false
+      showPage: false,
     };
   },
   methods: {
@@ -33,26 +33,26 @@ export default {
     onPageReady() {
       this.showPage = true;
       NProgress.done();
-    }
+    },
   },
   created() {
     this.fetchAuthUser();
 
     NProgress.configure({
       speed: 200,
-      showSpinner: false
+      showSpinner: false,
     });
 
     this.$router.beforeEach(() => {
       this.showPage = false;
       NProgress.start();
     });
-  }
+  },
 };
 </script>
 
 <style>
-@import "~nprogress/nprogress.css";
+@import "nprogress/nprogress.css";
 @import "assets/styles/main.css";
 
 #nprogress .bar {

@@ -5,9 +5,7 @@
       <router-link
         v-if="thread.userId === authUser?.id"
         :to="{ name: 'ThreadEdit', id: this.id }"
-        class="btn-green btn-small"
-        tag="button"
-        >Edit Thread</router-link
+        ><button class="btn-green btn-small">Edit Thread</button></router-link
       >
     </h1>
 
@@ -15,7 +13,7 @@
       By <a href="#" class="link-unstyled">{{ thread.author?.name }}</a
       >, <AppDate :timestamp="thread.publishedAt" />.
       <span
-        style="float:right; margin-top: 2px;"
+        style="float: right; margin-top: 2px"
         class="hide-mobile text-faded text-small"
         >{{ thread.repliesCount }} replies by
         {{ thread.contributorsCount }} contributors</span
@@ -24,7 +22,7 @@
 
     <post-list :posts="threadPosts" />
     <post-editor v-if="authUser" @save="addPost" />
-    <div v-else class="text-center" style="margin-bottom: 50px;">
+    <div v-else class="text-center" style="margin-bottom: 50px">
       <router-link :to="{ name: 'LogIn', query: { redirectTo: $route.path } }"
         >Log In</router-link
       >
@@ -51,12 +49,12 @@ export default {
   props: {
     id: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
   components: {
     PostList,
-    PostEditor
+    PostEditor,
   },
   mixins: [asyncDataStatus],
   setup() {
@@ -70,14 +68,14 @@ export default {
       return this.$store.getters["threads/thread"](this.id);
     },
     threadPosts() {
-      return this.posts.filter(post => post.threadId === this.id);
+      return this.posts.filter((post) => post.threadId === this.id);
     },
     threads() {
       return this.$store.state.threads.items;
     },
     posts() {
       return this.$store.state.posts.items;
-    }
+    },
   },
   methods: {
     ...mapActions("posts", ["createPost", "fetchPosts"]),
@@ -86,7 +84,7 @@ export default {
     addPost(eventData) {
       const post = {
         ...eventData.post,
-        threadId: this.id
+        threadId: this.id,
       };
 
       this.createPost(post);
@@ -109,14 +107,14 @@ export default {
 
           this.addNotification({
             message: "Thread recently updated!",
-            timeout: 5000
+            timeout: 5000,
           });
-        }
+        },
       });
 
-      const users = posts.map(post => post.userId).concat(this.thread.userId);
+      const users = posts.map((post) => post.userId).concat(this.thread.userId);
       await this.fetchUsers({ ids: users });
-    }
+    },
   },
   async created() {
     const thread = await this.fetchThread({
@@ -138,15 +136,15 @@ export default {
         } else {
           this.addNotification({
             message: "Thread recently updated!",
-            timeout: 5000
+            timeout: 5000,
           });
         }
-      }
+      },
     });
 
     await this.fetchPostsWithUsers(thread.posts);
     this.asyncDataStatus_fetched();
-  }
+  },
 };
 </script>
 

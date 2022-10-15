@@ -1,13 +1,11 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    es2021: true,
   },
   extends: ["plugin:vue/vue3-essential", "eslint:recommended"],
-  parserOptions: {
-    parser: "babel-eslint"
-  },
-  rules: {
-    "no-unused-vars": process.env.NODE_ENV === "production" ? "error" : "warn"
-  }
+  // rules: {
+  //   "no-unused-vars": import.meta.env.MODE === "production" ? "error" : "warn",
+  // },
 };

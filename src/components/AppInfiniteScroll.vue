@@ -7,18 +7,18 @@ export default {
   props: {
     done: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
-      observer: null
+      observer: null,
     };
   },
   mounted() {
     this.observer = new IntersectionObserver(
-      (entries, observer) => {
-        entries.forEach(entry => {
+      (entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             this.$emit("load");
           }
@@ -27,7 +27,7 @@ export default {
       {
         root: null,
         rootMargin: "0px",
-        threshold: 0.9
+        threshold: 0.9,
       }
     );
 
@@ -41,8 +41,8 @@ export default {
       if (this.done) {
         this.observer.unobserve(this.$el);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

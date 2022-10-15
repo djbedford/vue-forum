@@ -36,10 +36,10 @@
           v-if="post.userId === $store.state.auth.authId"
           @click.prevent="toggleEditMode(post.id)"
           href="#"
-          style="margin-left: auto;"
+          style="margin-left: auto"
           class="link-unstyled"
           title="Make a change"
-          ><fa icon="pencil-alt"
+          ><font-awesome icon="pencil-alt"
         /></a>
       </div>
 
@@ -59,21 +59,21 @@ export default {
   props: {
     posts: {
       required: true,
-      type: Array
-    }
+      type: Array,
+    },
   },
   components: {
-    PostEditor
+    PostEditor,
   },
   data() {
     return {
-      editing: null
+      editing: null,
     };
   },
   computed: {
     users() {
       return this.$store.state.users.items;
-    }
+    },
   },
   methods: {
     ...mapActions("posts", ["updatePost"]),
@@ -86,8 +86,8 @@ export default {
     handleUpdate(event) {
       this.updatePost(event.post);
       this.editing = null;
-    }
-  }
+    },
+  },
 };
 </script>
 

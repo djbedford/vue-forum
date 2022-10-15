@@ -6,64 +6,59 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import(/* webpackChunkName: "Home" */ "@/pages/Home")
+    component: () => import("@/pages/PageHome.vue"),
   },
   {
     path: "/me",
     name: "Profile",
-    component: () =>
-      import(/* webpackChunkName: "Profile" */ "@/pages/Profile"),
+    component: () => import("@/pages/PageProfile.vue"),
     meta: {
       toTop: true,
       smoothScroll: true,
-      requiresAuth: true
-    }
+      requiresAuth: true,
+    },
   },
   {
     path: "/me/edit",
     name: "ProfileEdit",
-    component: () =>
-      import(/* webpackChunkName: "ProfileEdit" */ "@/pages/Profile"),
+    component: () => import("@/pages/PageProfile.vue"),
     props: {
-      edit: true
+      edit: true,
     },
     meta: {
-      requiresAuth: true
-    }
+      requiresAuth: true,
+    },
   },
   {
     path: "/category/:id",
     name: "Category",
-    component: () =>
-      import(/* webpackChunkName: "Category" */ "@/pages/Category"),
-    props: true
+    component: () => import("@/pages/PageCategory.vue"),
+    props: true,
   },
   {
     path: "/forum/:id",
     name: "Forum",
-    component: () => import(/* webpackChunkName: "Forum" */ "@/pages/Forum"),
-    props: true
+    component: () => import("@/pages/PageForum.vue"),
+    props: true,
   },
   {
     path: "/forum/:id/thread/create",
     name: "ThreadCreate",
-    component: () =>
-      import(/* webpackChunkName: "ThreadCreate" */ "@/pages/ThreadCreate"),
+    component: () => import("@/pages/PageThreadCreate.vue"),
     props: true,
     meta: {
-      requiresAuth: true
-    }
+      requiresAuth: true,
+    },
   },
   {
     path: "/thread/:id",
     name: "ThreadShow",
-    component: () =>
-      import(/* webpackChunkName: "ThreadShow" */ "@/pages/ThreadShow"),
+    component: () => import("@/pages/PageThreadShow.vue"),
     props: true,
     async beforeEnter(to, from, next) {
       await store.dispatch("threads/fetchThread", {
         id: to.params.id,
-        once: true
+        once: true,
       });
       const threadExists = findById(store.state.threads.items, to.params.id);
 
@@ -72,39 +67,37 @@ const routes = [
           name: "NotFound",
           params: { pathMatch: to.path.substring(1).split("/") },
           query: to.query,
-          hash: to.hash
+          hash: to.hash,
         });
       }
 
       return next();
-    }
+    },
   },
   {
     path: "/thread/:id/edit",
     name: "ThreadEdit",
-    component: () =>
-      import(/* webpackChunkName: "ThreadEdit" */ "@/pages/ThreadEdit"),
+    component: () => import("@/pages/PageThreadEdit.vue"),
     props: true,
     meta: {
-      requiresAuth: true
-    }
+      requiresAuth: true,
+    },
   },
   {
     path: "/register",
     name: "Register",
-    component: () =>
-      import(/* webpackChunkName: "Register" */ "@/pages/Register"),
+    component: () => import("@/pages/PageRegister.vue"),
     meta: {
-      requiresGuest: true
-    }
+      requiresGuest: true,
+    },
   },
   {
     path: "/login",
     name: "LogIn",
-    component: () => import(/* webpackChunkName: "LogIn" */ "@/pages/LogIn"),
+    component: () => import("@/pages/PageLogIn.vue"),
     meta: {
-      requiresGuest: true
-    }
+      requiresGuest: true,
+    },
   },
   {
     path: "/logout",
@@ -113,14 +106,13 @@ const routes = [
       await store.dispatch("auth/logOut");
 
       return { name: "Home" };
-    }
+    },
   },
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
-    component: () =>
-      import(/* webpackChunkName: "NotFound" */ "@/pages/NotFound")
-  }
+    component: () => import("@/pages/PageNotFound.vue"),
+  },
 ];
 
 const router = createRouter({
@@ -138,17 +130,17 @@ const router = createRouter({
     }
 
     return scroll;
-  }
+  },
 });
 
-router.beforeEach(async to => {
+router.beforeEach(async (to) => {
   await store.dispatch("auth/initAuthentication");
   store.dispatch("unsubscribeAllSnapshots");
 
   if (to.meta.requiresAuth && !store.state.auth.authId) {
     return {
       name: "LogIn",
-      query: { redirectTo: to.path }
+      query: { redirectTo: to.path },
     };
   }
 
@@ -159,7 +151,7 @@ router.beforeEach(async to => {
 
 router.afterEach(() => {
   store.dispatch("clearItems", {
-    modules: ["categories", "forums", "threads", "posts"]
+    modules: ["categories", "forums", "threads", "posts"],
   });
 });
 

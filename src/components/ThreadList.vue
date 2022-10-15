@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!threads.length" style="padding: 10px; text-align: center;">
+    <div v-if="!threads.length" style="padding: 10px; text-align: center">
       <em>There are no threads.</em>
     </div>
   </div>
@@ -50,8 +50,8 @@ export default {
   props: {
     threads: {
       required: true,
-      type: Array
-    }
+      type: Array,
+    },
   },
   computed: {
     posts() {
@@ -59,7 +59,7 @@ export default {
     },
     users() {
       return this.$store.state.users.items;
-    }
+    },
   },
   methods: {
     postById(postId) {
@@ -67,8 +67,8 @@ export default {
     },
     userById(userId) {
       return findById(this.users, userId) || {};
-    }
-  }
+    },
+  },
 };
 </script>
 

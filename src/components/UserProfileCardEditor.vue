@@ -10,7 +10,7 @@
           />
           <div class="avatar-upload-overlay">
             <app-spinner v-if="uploadingImage" :colour="white" />
-            <fa
+            <font-awesome
               v-else
               icon="camera"
               size="3x"
@@ -116,12 +116,12 @@ export default {
   props: {
     user: {
       required: true,
-      type: Object
-    }
+      type: Object,
+    },
   },
   components: {
     UserProfileCardEditorRandomAvatar,
-    UserProfileCardEditorReauthenticate
+    UserProfileCardEditorReauthenticate,
   },
   setup() {
     const { addNotification } = useNotifications();
@@ -133,7 +133,7 @@ export default {
       uploadingImage: false,
       activeUser: { ...this.user },
       locationOptions: [],
-      needsReauth: false
+      needsReauth: false,
     };
   },
   methods: {
@@ -155,9 +155,8 @@ export default {
       this.uploadingImage = false;
     },
     async handleRandomAvatarUpload() {
-      const randomAvatarGenerated = this.activeUser.avatar.startsWith(
-        "https://pixabay"
-      );
+      const randomAvatarGenerated =
+        this.activeUser.avatar.startsWith("https://pixabay");
 
       if (randomAvatarGenerated) {
         const image = await fetch(this.activeUser.avatar);
@@ -165,13 +164,13 @@ export default {
 
         this.activeUser.avatar = await this.uploadAvatar({
           file: blob,
-          filename: "random"
+          filename: "random",
         });
       }
     },
     async onReauthenticated() {
       await this.$store.dispatch("auth/updateEmail", {
-        email: this.activeUser.email
+        email: this.activeUser.email,
       });
 
       this.saveUserData();
@@ -180,20 +179,20 @@ export default {
       this.addNotification({
         message: "Error updating user.",
         type: "error",
-        timeout: 3000
+        timeout: 3000,
       });
       this.$router.push({ name: "Profile" });
     },
     async saveUserData() {
       await this.$store.dispatch("users/updateUser", {
         ...this.activeUser,
-        threads: this.activeUser.threadIds
+        threads: this.activeUser.threadIds,
       });
 
       this.$router.push({ name: "Profile" });
       this.addNotification({
         message: "Successfully updated user.",
-        timeout: 3000
+        timeout: 3000,
       });
     },
     async save() {
@@ -209,8 +208,8 @@ export default {
     },
     cancel() {
       this.$router.push({ name: "Profile" });
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -22,21 +22,21 @@ forumApp.use(PageScrollDirective);
 forumApp.use(Vue3Pagination);
 forumApp.use(VeeValidatePlugin);
 
-const requireComponent = require.context(
-  "./components",
-  true,
-  /App[A-Z]\w+\.(vue|js)$/
-);
+const modules = import.meta.glob("./components/*.vue");
 
-requireComponent.keys().forEach(function(fileName) {
-  let baseComponentConfig = requireComponent(fileName);
-  baseComponentConfig = baseComponentConfig.default || baseComponentConfig;
+for (const path in modules) {
+  const componentName = path
+    .split("/")
+    .pop()
+    .replace(/\.\w+$/, "");
 
-  const baseComponentName =
-    baseComponentConfig.name ||
-    fileName.replace(/^.+\//, "").replace(/\.\w+$/, "");
+  if (componentName.startsWith("App")) {
+    modules[path]().then((module) => {
+      const componentConfig = module.default || module;
 
-  forumApp.component(baseComponentName, baseComponentConfig);
-});
+      forumApp.component(componentName, componentConfig);
+    });
+  }
+}
 
 forumApp.mount("#app");
