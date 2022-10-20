@@ -33,7 +33,7 @@
           </div>
         </div>
         <a
-          v-if="post.userId === $store.state.auth.authId"
+          v-if="post.userId === this.authId"
           @click.prevent="toggleEditMode(post.id)"
           href="#"
           style="margin-left: auto"
@@ -52,7 +52,10 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useAuthStore } from "../stores/auth";
+import { usePostsStore } from "../stores/posts";
+import { useUsersStore } from "../stores/users";
 import PostEditor from "@/components/PostEditor.vue";
 
 export default {
@@ -71,20 +74,22 @@ export default {
     };
   },
   computed: {
-    users() {
-      return this.$store.state.users.items;
-    },
+    ...mapState(useUsersStore, {
+      user: (store) => store.user,
+      users: "users",
+    }),
+    ...mapState(useAuthStore, ["authId"]),
   },
   methods: {
-    ...mapActions("posts", ["updatePost"]),
+    ...mapActions(usePostsStore, ["updatePost"]),
     userById(userId) {
-      return this.$store.getters["users/user"](userId);
+      return this.user(userId);
     },
     toggleEditMode(id) {
       this.editing = id === this.editing ? null : id;
     },
-    handleUpdate(event) {
-      this.updatePost(event.post);
+    async handleUpdate(event) {
+      await this.updatePost(event.post);
       this.editing = null;
     },
   },

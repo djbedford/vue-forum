@@ -6,7 +6,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useCategoriesStore } from "../stores/categories";
+import { useForumsStore } from "../stores/forums";
 import { findById } from "@/helpers";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import ForumList from "@/components/ForumList.vue";
@@ -15,35 +17,35 @@ export default {
   props: {
     id: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
   components: {
-    ForumList
+    ForumList,
   },
   mixins: [asyncDataStatus],
   computed: {
+    ...mapState(useCategoriesStore, ["categories"]),
+    ...mapState(useForumsStore, ["forums"]),
     category() {
-      return findById(this.$store.state.categories.items, this.id) || {};
-    }
+      return findById(this.categories, this.id) || {};
+    },
   },
   methods: {
-    ...mapActions("categories", ["fetchCategory"]),
-    ...mapActions("forums", ["fetchForums"]),
+    ...mapActions(useCategoriesStore, ["fetchCategory"]),
+    ...mapActions(useForumsStore, ["fetchForums"]),
     getCategoryForums(category) {
-      return this.$store.state.forums.items.filter(
-        forum => forum.categoryId === category.id
-      );
-    }
+      return this.forums.filter((forum) => forum.categoryId === category.id);
+    },
   },
   async created() {
     const category = await this.fetchCategory({
-      id: this.id
+      id: this.id,
     });
 
     await this.fetchForums({ ids: category.forums });
 
     this.asyncDataStatus_fetched();
-  }
+  },
 };
 </script>

@@ -44,6 +44,9 @@
 </template>
 
 <script>
+import { mapState } from "pinia";
+import { usePostsStore } from "../stores/posts";
+import { useUsersStore } from "../stores/users";
 import { findById } from "@/helpers";
 
 export default {
@@ -54,12 +57,8 @@ export default {
     },
   },
   computed: {
-    posts() {
-      return this.$store.state.posts.items;
-    },
-    users() {
-      return this.$store.state.users.items;
-    },
+    ...mapState(usePostsStore, ["posts"]),
+    ...mapState(useUsersStore, ["users"]),
   },
   methods: {
     postById(postId) {

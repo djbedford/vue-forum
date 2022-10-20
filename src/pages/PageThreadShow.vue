@@ -37,7 +37,11 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useAuthStore } from "../stores/auth";
+import { usePostsStore } from "../stores/posts";
+import { useThreadsStore } from "../stores/threads";
+import { useUsersStore } from "../stores/users";
 import difference from "lodash/difference";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import PostList from "@/components/PostList.vue";
@@ -63,24 +67,22 @@ export default {
     return { addNotification };
   },
   computed: {
-    ...mapGetters("auth", ["authUser"]),
+    ...mapState(useAuthStore, ["authUser"]),
+    ...mapState(usePostsStore, ["posts"]),
+    ...mapState(useThreadsStore, {
+      getThread: (store) => store.thread,
+    }),
     thread() {
-      return this.$store.getters["threads/thread"](this.id);
+      return this.getThread(this.id);
     },
     threadPosts() {
       return this.posts.filter((post) => post.threadId === this.id);
     },
-    threads() {
-      return this.$store.state.threads.items;
-    },
-    posts() {
-      return this.$store.state.posts.items;
-    },
   },
   methods: {
-    ...mapActions("posts", ["createPost", "fetchPosts"]),
-    ...mapActions("threads", ["fetchThread"]),
-    ...mapActions("users", ["fetchUsers"]),
+    ...mapActions(usePostsStore, ["createPost", "fetchPosts"]),
+    ...mapActions(useThreadsStore, ["fetchThread"]),
+    ...mapActions(useUsersStore, ["fetchUsers"]),
     addPost(eventData) {
       const post = {
         ...eventData.post,
@@ -112,7 +114,8 @@ export default {
         },
       });
 
-      const users = posts.map((post) => post.userId).concat(this.thread.userId);
+      const thread = this.thread;
+      const users = posts.map((post) => post.userId).concat(thread.userId);
       await this.fetchUsers({ ids: users });
     },
   },

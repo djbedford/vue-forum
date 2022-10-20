@@ -24,7 +24,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useAuthStore } from "../stores/auth";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import PostList from "@/components/PostList.vue";
 import UserProfileCard from "@/components/UserProfileCard.vue";
@@ -44,7 +45,7 @@ export default {
   },
   mixins: [asyncDataStatus],
   computed: {
-    ...mapGetters("auth", { user: "authUser" }),
+    ...mapState(useAuthStore, { user: "authUser" }),
     lastPostFetched() {
       if (this.user.posts.length === 0) {
         return null;
@@ -54,8 +55,9 @@ export default {
     },
   },
   methods: {
+    ...mapActions(useAuthStore, ["fetchAuthUserPosts"]),
     fetchUserPosts() {
-      return this.$store.dispatch("auth/fetchAuthUserPosts", {
+      return this.fetchAuthUserPosts({
         startAfter: this.lastPostFetched,
       });
     },

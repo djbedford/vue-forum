@@ -14,7 +14,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { usePostsStore } from "../stores/posts";
+import { useThreadsStore } from "../stores/threads";
 import { findById } from "@/helpers";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import ThreadEditor from "@/components/ThreadEditor.vue";
@@ -23,41 +25,40 @@ export default {
   props: {
     id: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
   components: {
-    ThreadEditor
+    ThreadEditor,
   },
   mixins: [asyncDataStatus],
   computed: {
+    ...mapState(useThreadsStore, ["threads"]),
+    ...mapState(usePostsStore, ["posts"]),
     thread() {
-      return findById(this.$store.state.threads.items, this.id);
+      return findById(this.threads, this.id);
     },
     text() {
-      const post = findById(
-        this.$store.state.posts.items,
-        this.thread.posts[0]
-      );
+      const post = findById(this.posts, this.thread?.posts[0]);
 
       return post ? post.text : "";
-    }
+    },
   },
   methods: {
-    ...mapActions("threads", ["updateThread", "fetchThread"]),
-    ...mapActions("posts", ["fetchPost"]),
+    ...mapActions(useThreadsStore, ["updateThread", "fetchThread"]),
+    ...mapActions(usePostsStore, ["fetchPost"]),
     async save({ title, text }) {
       const thread = await this.updateThread({
         id: this.id,
         title,
-        text
+        text,
       });
 
       this.$router.push({ name: "ThreadShow", params: { id: thread.id } });
     },
     cancel() {
       this.$router.push({ name: "ThreadShow", params: { id: this.thread.id } });
-    }
+    },
   },
   async created() {
     const thread = await this.fetchThread({ id: this.id });
@@ -65,6 +66,6 @@ export default {
     await this.fetchPost({ id: thread.posts[0] });
 
     this.asyncDataStatus_fetched();
-  }
+  },
 };
 </script>

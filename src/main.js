@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "@/router";
-import store from "@/store";
+import stores from "@/stores";
 import firebase from "@/helpers/firebase";
 import firebaseConfig from "@/config/firebase";
 import fontAwesome from "@/plugins/fontawesome";
@@ -15,28 +15,24 @@ firebase.initializeApp(firebaseConfig);
 
 const forumApp = createApp(App);
 forumApp.use(router);
-forumApp.use(store);
+forumApp.use(stores);
 forumApp.use(fontAwesome);
 forumApp.use(ClickOutsideDirective);
 forumApp.use(PageScrollDirective);
 forumApp.use(Vue3Pagination);
 forumApp.use(VeeValidatePlugin);
 
-const modules = import.meta.glob("./components/*.vue");
+const modules = import.meta.glob("./components/*.vue", { eager: true });
 
-for (const path in modules) {
+Object.entries(modules).forEach(([path, definition]) => {
   const componentName = path
     .split("/")
     .pop()
     .replace(/\.\w+$/, "");
 
   if (componentName.startsWith("App")) {
-    modules[path]().then((module) => {
-      const componentConfig = module.default || module;
-
-      forumApp.component(componentName, componentConfig);
-    });
+    forumApp.component(componentName, definition.default);
   }
-}
+});
 
 forumApp.mount("#app");

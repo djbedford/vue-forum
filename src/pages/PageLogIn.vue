@@ -41,20 +41,27 @@
 </template>
 
 <script>
+import { mapActions } from "pinia";
+import { useAuthStore } from "../stores/auth";
+
 export default {
   data() {
     return {
       form: {
         email: "",
-        password: ""
-      }
+        password: "",
+      },
     };
   },
   methods: {
+    ...mapActions(useAuthStore, {
+      logInWithEmailAndPassword: "logInWithEmailAndPassword",
+      googleLogIn: "logInWithGoogle",
+    }),
     async logIn() {
       try {
-        await this.$store.dispatch("auth/logInWithEmailAndPassword", {
-          ...this.form
+        await this.logInWithEmailAndPassword({
+          ...this.form,
         });
         this.successRedirect();
       } catch (error) {
@@ -62,16 +69,16 @@ export default {
       }
     },
     async logInWithGoogle() {
-      await this.$store.dispatch("auth/logInWithGoogle");
+      await this.googleLogIn();
       this.successRedirect();
     },
     successRedirect() {
       const redirectTo = this.$route.query.redirectTo || { name: "Home" };
       this.$router.push(redirectTo);
-    }
+    },
   },
   created() {
     this.$emit("ready");
-  }
+  },
 };
 </script>

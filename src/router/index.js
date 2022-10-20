@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { useRootStore } from "@/stores/root";
+import { useThreadsStore } from "@/stores/threads";
 import { findById } from "@/helpers";
-import store from "@/store";
 
 const routes = [
   {
@@ -56,11 +58,13 @@ const routes = [
     component: () => import("@/pages/PageThreadShow.vue"),
     props: true,
     async beforeEnter(to, from, next) {
-      await store.dispatch("threads/fetchThread", {
+      const threadsStore = useThreadsStore();
+
+      await threadsStore.fetchThread({
         id: to.params.id,
         once: true,
       });
-      const threadExists = findById(store.state.threads.items, to.params.id);
+      const threadExists = findById(threadsStore.threads, to.params.id);
 
       if (!threadExists) {
         return next({
@@ -103,7 +107,9 @@ const routes = [
     path: "/logout",
     name: "LogOut",
     async beforeEnter() {
-      await store.dispatch("auth/logOut");
+      const authStore = useAuthStore();
+
+      await authStore.logOut();
 
       return { name: "Home" };
     },
@@ -134,23 +140,28 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
-  await store.dispatch("auth/initAuthentication");
-  store.dispatch("unsubscribeAllSnapshots");
+  const authStore = useAuthStore();
+  const rootStore = useRootStore();
 
-  if (to.meta.requiresAuth && !store.state.auth.authId) {
+  await authStore.initAuthentication();
+  rootStore.unsubscribeAllSnapshots();
+
+  if (to.meta.requiresAuth && !authStore.authId) {
     return {
       name: "LogIn",
       query: { redirectTo: to.path },
     };
   }
 
-  if (to.meta.requiresGuest && store.state.auth.authId) {
+  if (to.meta.requiresGuest && authStore.authId) {
     return { name: "Home" };
   }
 });
 
 router.afterEach(() => {
-  store.dispatch("clearItems", {
+  const rootStore = useRootStore();
+
+  rootStore.clearItems({
     modules: ["categories", "forums", "threads", "posts"],
   });
 });

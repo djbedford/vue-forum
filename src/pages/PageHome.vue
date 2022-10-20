@@ -6,32 +6,32 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useCategoriesStore } from "../stores/categories";
+import { useForumsStore } from "../stores/forums";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import CategoryList from "@/components/CategoryList.vue";
 
 export default {
   components: {
-    CategoryList
+    CategoryList,
   },
   mixins: [asyncDataStatus],
   computed: {
-    categories() {
-      return this.$store.state.categories.items;
-    }
+    ...mapState(useCategoriesStore, ["categories"]),
   },
   methods: {
-    ...mapActions("categories", ["fetchAllCategories"]),
-    ...mapActions("forums", ["fetchForums"])
+    ...mapActions(useCategoriesStore, ["fetchAllCategories"]),
+    ...mapActions(useForumsStore, ["fetchForums"]),
   },
   async created() {
     const categories = await this.fetchAllCategories();
-    const forumIds = categories.map(category => category.forums).flat();
+    const forumIds = categories.map((category) => category.forums).flat();
 
     await this.fetchForums({ ids: forumIds });
 
     this.asyncDataStatus_fetched();
-  }
+  },
 };
 </script>
 
