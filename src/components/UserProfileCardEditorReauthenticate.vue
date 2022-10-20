@@ -27,22 +27,24 @@
 </template>
 
 <script>
+import { mapActions } from "pinia";
+import { useAuthStore } from "../stores/auth";
 import { VueFinalModal } from "vue-final-modal";
 
 export default {
   components: {
-    VueFinalModal
+    VueFinalModal,
   },
   props: {
     modelValue: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       email: "",
-      password: ""
+      password: "",
     };
   },
   computed: {
@@ -52,22 +54,22 @@ export default {
       },
       set(value) {
         this.$emit("update:modelValue", value);
-      }
-    }
+      },
+    },
   },
   methods: {
     async reauthenticate() {
       try {
-        await this.$store.dispatch("auth/reauthenticate", {
+        await this.reauthenticate({
           email: this.email,
-          password: this.password
+          password: this.password,
         });
 
         this.$emit("success");
       } catch (error) {
         this.$emit("fail", error);
       }
-    }
-  }
+    },
+  },
 };
 </script>

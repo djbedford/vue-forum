@@ -12,8 +12,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions } from "pinia";
 import NProgress from "nprogress";
+import { useAuthStore } from "./stores/auth";
 import TheNavbar from "@/components/TheNavbar.vue";
 import AppNotifications from "@/components/AppNotifications.vue";
 
@@ -29,7 +30,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("auth", ["fetchAuthUser"]),
+    ...mapActions(useAuthStore, ["fetchAuthUser"]),
     onPageReady() {
       this.showPage = true;
       NProgress.done();

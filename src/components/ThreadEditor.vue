@@ -37,31 +37,31 @@ export default {
   props: {
     title: {
       type: String,
-      default: ""
+      default: "",
     },
     text: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
   data() {
     return {
       form: {
         title: this.title,
-        text: this.text
-      }
+        text: this.text,
+      },
     };
   },
   computed: {
     existing() {
       return !!this.title;
-    }
+    },
   },
   methods: {
     save() {
       this.$emit("clean");
       this.$emit("save", { ...this.form });
-    }
+    },
   },
   watch: {
     form: {
@@ -72,8 +72,8 @@ export default {
           this.$emit("clean");
         }
       },
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 };
 </script>

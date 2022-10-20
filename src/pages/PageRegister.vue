@@ -66,6 +66,9 @@
 </template>
 
 <script>
+import { mapActions } from "pinia";
+import { useAuthStore } from "../stores/auth";
+
 export default {
   data() {
     return {
@@ -75,32 +78,33 @@ export default {
         username: "",
         email: "",
         password: "",
-        avatar: ""
-      }
+        avatar: "",
+      },
     };
   },
   methods: {
+    ...mapActions(useAuthStore, [
+      "registerUserWithEmailAndPassword",
+      "logInWithGoogle",
+    ]),
     async register() {
-      await this.$store.dispatch(
-        "auth/registerUserWithEmailAndPassword",
-        this.form
-      );
+      await this.registerUserWithEmailAndPassword(this.form);
       this.$router.push({ name: "Home" });
     },
     async registerWithGoogle() {
-      await this.$store.dispatch("auth/logInWithGoogle");
+      await this.logInWithGoogle();
       this.$router.push({ name: "Home" });
     },
     handleImageUpload(e) {
       this.form.avatar = e.target.files[0];
 
       const reader = new FileReader();
-      reader.onload = event => (this.avatarPreview = event.target.result);
+      reader.onload = (event) => (this.avatarPreview = event.target.result);
       reader.readAsDataURL(this.form.avatar);
-    }
+    },
   },
   created() {
     this.$emit("ready");
-  }
+  },
 };
 </script>

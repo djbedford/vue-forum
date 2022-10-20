@@ -14,14 +14,17 @@
       </div>
     </div>
     <div class="col-full push-top">
-      <thread-list :threads="threads" />
+      <thread-list :threads="forumThreads" />
       <v-pagination v-model="page" :pages="totalPages" active-color="#57AD8D" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useForumsStore } from "../stores/forums";
+import { useThreadsStore } from "../stores/threads";
+import { useUsersStore } from "../stores/users";
 import { findById } from "@/helpers";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import ThreadList from "@/components/ThreadList.vue";
@@ -30,32 +33,37 @@ export default {
   props: {
     id: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
   data() {
     return {
       page: parseInt(this.$route.query.page) || 1,
-      perPage: 10
+      perPage: 10,
     };
   },
   components: {
-    ThreadList
+    ThreadList,
   },
   mixins: [asyncDataStatus],
   computed: {
+    ...mapState(useForumsStore, ["forums"]),
+    ...mapState(useThreadsStore, {
+      threads: "threads",
+      thread: (store) => store.thread,
+    }),
     forum() {
-      return findById(this.$store.state.forums.items, this.id);
+      return findById(this.forums, this.id);
     },
-    threads() {
+    forumThreads() {
       if (!this.forum) {
         return [];
       }
 
       return this.forum.threads
-        ? this.$store.state.threads.items
-            .filter(thread => thread.forumId === this.forum.id)
-            .map(thread => this.$store.getters["threads/thread"](thread.id))
+        ? this.threads
+            .filter((thread) => thread.forumId === this.forum.id)
+            .map((thread) => this.thread(thread.id))
         : [];
     },
     threadCount() {
@@ -67,32 +75,32 @@ export default {
       }
 
       return Math.ceil(this.threadCount / this.perPage);
-    }
+    },
   },
   methods: {
-    ...mapActions("forums", ["fetchForum"]),
-    ...mapActions("threads", ["fetchThreadsByPage"]),
-    ...mapActions("users", ["fetchUsers"])
+    ...mapActions(useForumsStore, ["fetchForum"]),
+    ...mapActions(useThreadsStore, ["fetchThreadsByPage"]),
+    ...mapActions(useUsersStore, ["fetchUsers"]),
   },
   watch: {
     async page() {
       this.$router.push({ query: { page: this.page } });
-    }
+    },
   },
   async created() {
     const forum = await this.fetchForum({ id: this.id });
     const threads = await this.fetchThreadsByPage({
       ids: forum.threads,
       page: this.page,
-      perPage: this.perPage
+      perPage: this.perPage,
     });
 
     await this.fetchUsers({
-      ids: threads.map(thread => thread.userId)
+      ids: threads.map((thread) => thread.userId),
     });
 
     this.asyncDataStatus_fetched();
-  }
+  },
 };
 </script>
 

@@ -45,11 +45,7 @@
                 >
               </li>
               <li class="dropdown-menu-item">
-                <a
-                  @click.prevent="
-                    $store.dispatch('auth/logOut'),
-                      $router.push({ name: 'Home' })
-                  "
+                <a @click.prevent="logOut(), $router.push({ name: 'Home' })"
                   >Log Out</a
                 >
               </li>
@@ -67,10 +63,7 @@
           <router-link :to="{ name: 'Profile' }">My Profile</router-link>
         </li>
         <li v-if="authUser" class="navbar-item mobile-only">
-          <a
-            @click.prevent="
-              $store.dispatch('auth/logOut'), $router.push({ name: 'Home' })
-            "
+          <a @click.prevent="logOut(), $router.push({ name: 'Home' })"
             >Log Out</a
           >
         </li>
@@ -80,22 +73,26 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState, mapActions } from "pinia";
+import { useAuthStore } from "../stores/auth";
 
 export default {
   data() {
     return {
       userDropdownOpen: false,
-      mobileNavMenu: false
+      mobileNavMenu: false,
     };
   },
   computed: {
-    ...mapGetters("auth", ["authUser"])
+    ...mapState(useAuthStore, ["authUser"]),
+  },
+  methods: {
+    ...mapActions(useAuthStore, ["logOut"]),
   },
   created() {
     this.$router.beforeEach(() => {
       this.mobileNavMenu = false;
     });
-  }
+  },
 };
 </script>

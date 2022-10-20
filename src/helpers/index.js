@@ -1,3 +1,5 @@
+import { useRootStore } from "../stores/root";
+
 export const findById = (resources, id) => {
   if (!resources) {
     return null;
@@ -46,14 +48,18 @@ export const makeAppendChildToParentMutation = ({ parent, child }) => {
   };
 };
 
-export const makeFetchItemAction = ({ resource }) => {
-  return ({ dispatch }, payload) =>
-    dispatch("fetchItem", { ...payload, resource }, { root: true });
+export const makeFetchItemAction = ({ resource, resources }) => {
+  return (payload) => {
+    const rootStore = useRootStore();
+    rootStore.fetchItem({ ...payload, resource, resources });
+  };
 };
 
-export const makeFetchItemsAction = ({ resource }) => {
-  return ({ dispatch }, payload) =>
-    dispatch("fetchItems", { ...payload, resource }, { root: true });
+export const makeFetchItemsAction = ({ resource, resources }) => {
+  return (payload) => {
+    const rootStore = useRootStore();
+    rootStore.fetchItems({ ...payload, resource, resources });
+  };
 };
 
 export const arrayRandom = (array) => {

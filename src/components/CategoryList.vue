@@ -13,25 +13,28 @@
 </template>
 
 <script>
+import { mapState } from "pinia";
+import { useForumsStore } from "../stores/forums";
 import ForumList from "@/components/ForumList.vue";
 
 export default {
   props: {
     categories: {
       required: true,
-      type: Array
-    }
+      type: Array,
+    },
   },
   components: {
-    ForumList
+    ForumList,
+  },
+  computed: {
+    ...mapState(useForumsStore, ["forums"]),
   },
   methods: {
     getCategoryForums(category) {
-      return this.$store.state.forums.items.filter(
-        forum => forum.categoryId === category.id
-      );
-    }
-  }
+      return this.forums.filter((forum) => forum.categoryId === category.id);
+    },
+  },
 };
 </script>
 

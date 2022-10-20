@@ -107,7 +107,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions } from "pinia";
+import { useAuthStore } from "../stores/auth";
+import { useUsersStore } from "../stores/users";
 import useNotifications from "@/composables/useNotifications";
 import UserProfileCardEditorRandomAvatar from "@/components/UserProfileCardEditorRandomAvatar.vue";
 import UserProfileCardEditorReauthenticate from "@/components/UserProfileCardEditorReauthenticate.vue";
@@ -137,7 +139,8 @@ export default {
     };
   },
   methods: {
-    ...mapActions("auth", ["uploadAvatar"]),
+    ...mapActions(useAuthStore, ["uploadAvatar", "updateEmail"]),
+    ...mapActions(useUsersStore, ["updateUser"]),
     async loadLocationOptions() {
       if (this.locationOptions.length) {
         return;
@@ -169,7 +172,7 @@ export default {
       }
     },
     async onReauthenticated() {
-      await this.$store.dispatch("auth/updateEmail", {
+      await this.updateEmail({
         email: this.activeUser.email,
       });
 
@@ -184,7 +187,7 @@ export default {
       this.$router.push({ name: "Profile" });
     },
     async saveUserData() {
-      await this.$store.dispatch("users/updateUser", {
+      await this.updateUser({
         ...this.activeUser,
         threads: this.activeUser.threadIds,
       });

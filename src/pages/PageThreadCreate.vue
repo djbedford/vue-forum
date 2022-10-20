@@ -14,7 +14,9 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useForumsStore } from "../stores/forums";
+import { useThreadsStore } from "../stores/threads";
 import { findById } from "@/helpers";
 import asyncDataStatus from "@/mixins/asyncDataStatus";
 import ThreadEditor from "@/components/ThreadEditor.vue";
@@ -23,38 +25,39 @@ export default {
   props: {
     id: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
   components: {
-    ThreadEditor
+    ThreadEditor,
   },
   mixins: [asyncDataStatus],
   data() {
     return {
-      formIsDirty: false
+      formIsDirty: false,
     };
   },
   computed: {
+    ...mapState(useForumsStore, ["forums"]),
     forum() {
-      return findById(this.$store.state.forums.items, this.id);
-    }
+      return findById(this.forums, this.id);
+    },
   },
   methods: {
-    ...mapActions("threads", ["createThread"]),
-    ...mapActions("forums", ["fetchForum"]),
+    ...mapActions(useThreadsStore, ["createThread"]),
+    ...mapActions(useForumsStore, ["fetchForum"]),
     async save({ title, text }) {
       const thread = await this.createThread({
         forumId: this.forum.id,
         title,
-        text
+        text,
       });
 
       this.$router.push({ name: "ThreadShow", params: { id: thread.id } });
     },
     cancel() {
       this.$router.push({ name: "Forum", params: { id: this.forum.id } });
-    }
+    },
   },
   async created() {
     await this.fetchForum({ id: this.id });
@@ -71,6 +74,6 @@ export default {
         return false;
       }
     }
-  }
+  },
 };
 </script>
